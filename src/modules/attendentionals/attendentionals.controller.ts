@@ -7,28 +7,38 @@ import { UpdateAttendentionalDto } from './dto/update-attendentional.dto';
 export class AttendentionalsController {
   constructor(private readonly attendentionalsService: AttendentionalsService) {}
 
-  @Post()
-  create(@Body() createAttendentionalDto: CreateAttendentionalDto) {
-    return this.attendentionalsService.create(createAttendentionalDto);
+  @Post("create")
+  create(@Body() data: CreateAttendentionalDto) {
+    return this.attendentionalsService.create(data);
   }
 
-  @Get()
+  @Get("get-all")
   findAll() {
     return this.attendentionalsService.findAll();
   }
 
-  @Get(':id')
+  @Get("get-all/by-lessonid/:id")
+  getAll_By_LessonId(@Param("id") id : string){
+    return this.attendentionalsService.getAll_ByLessonId(id)
+  }
+
+  @Get("get-all/by-groupid/:id")
+  getAll_by_GroupId(@Param("id") id : string){
+    return this.attendentionalsService.getAll_ByGroupId(id)
+  }
+
+  @Get('get-one/:id')
   findOne(@Param('id') id: string) {
-    return this.attendentionalsService.findOne(+id);
+    return this.attendentionalsService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAttendentionalDto: UpdateAttendentionalDto) {
-    return this.attendentionalsService.update(+id, updateAttendentionalDto);
+  @Patch('update-one/:id')
+  update(@Param('id') id: string, @Body() data: UpdateAttendentionalDto) {
+    return this.attendentionalsService.update(id, data);
   }
 
-  @Delete(':id')
+  @Delete('delete-one/:id')
   remove(@Param('id') id: string) {
-    return this.attendentionalsService.remove(+id);
+    return this.attendentionalsService.remove(id);
   }
 }

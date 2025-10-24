@@ -7,18 +7,18 @@ export class CreateGroupeDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ example: "cs90j-98jvcre0-cdscs99-cdsokcdos" })
+  @ApiProperty({ example: "0e1d34a7-d601-49c0-8be3-830f996047db" })
   @IsString()
   teacherId: string;
 
-  @ApiProperty({ example: "cs90j-98jvcre0-cdscs99-cdsokcdos" })
+  @ApiProperty({ example: "4f3a3bf8-bfe1-4bbe-b575-95a8f72c1741" })
   @IsString()
   courseId: string;
 
-  @ApiProperty({ example: "cs90j-98jvcre0-cdscs99-cdsokcdos" })
+  @ApiProperty({ example: "786e766a-3469-4604-b659-fbe5ce927157" })
   @IsString()
   romId: string;
-
+  
   @ApiProperty({ example: false, default: false })
   @IsBoolean()
   isEnd: boolean = false;
@@ -29,5 +29,5 @@ export class CreateGroupeDto {
 
   @ApiProperty({ example: "2025-10-20T08:00:00Z" })
   @IsDateString()
-  startDate: Date;
+  startDate: string;
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
 import { GroupesService } from './groupes.service';
 import { CreateGroupeDto } from './dto/create-groupe.dto';
 import { UpdateGroupeDto } from './dto/update-groupe.dto';
@@ -7,28 +7,38 @@ import { UpdateGroupeDto } from './dto/update-groupe.dto';
 export class GroupesController {
   constructor(private readonly groupesService: GroupesService) {}
 
-  @Post()
+  @Post("create")
   create(@Body() createGroupeDto: CreateGroupeDto) {
     return this.groupesService.create(createGroupeDto);
   }
 
-  @Get()
+  @Get("get-all")
   findAll() {
     return this.groupesService.findAll();
   }
 
-  @Get(':id')
+  @Get('get-one/:id')
   findOne(@Param('id') id: string) {
-    return this.groupesService.findOne(+id);
+    return this.groupesService.findOne(id);
   }
 
-  @Patch(':id')
+  @Get("get-all/by-roomid/:id")
+  getAllByRoomId(@Param("id") id : string){
+    return this.groupesService.getAllByRoomId(id)
+  }
+
+  @Get("get-one/by-courseid/:id")
+  getOne_ByourseId(@Param("id") id : string){
+    return this.groupesService.findOneByCourseId(id)
+  }
+
+  @Patch('update-one/:id')
   update(@Param('id') id: string, @Body() updateGroupeDto: UpdateGroupeDto) {
-    return this.groupesService.update(+id, updateGroupeDto);
+    return this.groupesService.update(id, updateGroupeDto);
   }
 
-  @Delete(':id')
+  @Delete('delete-one/:id')
   remove(@Param('id') id: string) {
-    return this.groupesService.remove(+id);
+    return this.groupesService.remove(id);
   }
 }

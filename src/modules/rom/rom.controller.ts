@@ -1,34 +1,39 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
 import { RomService } from './rom.service';
 import { CreateRomDto } from './dto/create-rom.dto';
 import { UpdateRomDto } from './dto/update-rom.dto';
 
-@Controller('rom')
+@Controller('rooms')
 export class RomController {
-  constructor(private readonly romService: RomService) {}
+  constructor(private readonly romService: RomService) { }
 
-  @Post()
-  create(@Body() createRomDto: CreateRomDto) {
-    return this.romService.create(createRomDto);
+  @Post("create")
+  create(@Body() dto: CreateRomDto) {
+    return this.romService.create(dto);
   }
 
-  @Get()
+  @Get("get-all")
   findAll() {
     return this.romService.findAll();
   }
 
-  @Get(':id')
+  @Get('get-one/:id')
   findOne(@Param('id') id: string) {
-    return this.romService.findOne(+id);
+    return this.romService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRomDto: UpdateRomDto) {
-    return this.romService.update(+id, updateRomDto);
+  @Patch('update-one/:id')
+  update(@Param('id') id: string, @Body() dto: UpdateRomDto) {
+    return this.romService.update(id, dto);
   }
 
-  @Delete(':id')
+  @Get("get-all/statistika/romms")
+  getStatistika(){
+    return this.romService.getLidsStats()
+  }
+
+  @Delete('remove-one/:id')
   remove(@Param('id') id: string) {
-    return this.romService.remove(+id);
+    return this.romService.remove(id);
   }
 }

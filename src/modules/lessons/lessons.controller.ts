@@ -7,28 +7,33 @@ import { UpdateLessonDto } from './dto/update-lesson.dto';
 export class LessonsController {
   constructor(private readonly lessonsService: LessonsService) {}
 
-  @Post()
+  @Post("create")
   create(@Body() createLessonDto: CreateLessonDto) {
     return this.lessonsService.create(createLessonDto);
   }
 
-  @Get()
+  @Get("get-all")
   findAll() {
     return this.lessonsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.lessonsService.findOne(+id);
+  @Get('get-one/by-lessonid/:id')
+  findOneBy_LessonId(@Param('id') id: string) {
+    return this.lessonsService.findOneByLessonId(id);
   }
 
-  @Patch(':id')
+  @Get("get-all/by-groupid/:id")
+  getAll_ByGroupId(@Param("id") groupId : string){
+    return this.lessonsService.getAll_Lesson_byGroupId(groupId)
+  }
+
+  @Patch('update-one/by-lessonid/:id')
   update(@Param('id') id: string, @Body() updateLessonDto: UpdateLessonDto) {
-    return this.lessonsService.update(+id, updateLessonDto);
+    return this.lessonsService.update(id, updateLessonDto);
   }
 
-  @Delete(':id')
+  @Delete('delete-one/by-lessonid/:id')
   remove(@Param('id') id: string) {
-    return this.lessonsService.remove(+id);
+    return this.lessonsService.remove(id);
   }
 }

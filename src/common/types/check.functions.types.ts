@@ -10,6 +10,7 @@ export async function checAlreadykExistsResurs(
   value: any
 ) {
   if (prisma[modelName] && typeof prisma[modelName].findFirst === 'function') {
+    // @ts-ignore
     const result = await prisma[modelName].findFirst({
       where: {
         [field]: value,
@@ -29,9 +30,10 @@ export async function checkExistsResurs<T>(
   modelName: ModelsEnumInPrisma,
   field: string,
   value: any
-):Promise<T> {
+): Promise<T> {
   if (prisma[modelName] && typeof prisma[modelName].findFirst === 'function') {
     try {
+      // @ts-ignore
       const result = await prisma[modelName].findFirst({
         where: {
           [field]: value,
@@ -42,6 +44,7 @@ export async function checkExistsResurs<T>(
       }
       return result as T
     } catch (error) {
+      console.log(error)
       if (error instanceof NotFoundException) {
         throw error
       } else {
@@ -49,6 +52,7 @@ export async function checkExistsResurs<T>(
       }
     }
   } else {
+    console.log(prisma[modelName], modelName)
     throw new HttpException("Kutilmagan xatolik !", 500)
   }
 }
