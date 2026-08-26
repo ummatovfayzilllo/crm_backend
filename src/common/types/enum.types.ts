@@ -20,7 +20,7 @@ export const enum Action {
   DELETE = 'DELETE'
 }
 
-export const enum EmailCodeEnum  {
+export enum EmailCodeEnum  {
   REGISTER = "register",
   RESET_PASSWORD = "reset_password",
 }

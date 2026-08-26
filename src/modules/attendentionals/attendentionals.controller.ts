@@ -1,8 +1,13 @@
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/global/guards/jwt.auth.guard';
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { AttendentionalsService } from './attendentionals.service';
 import { CreateAttendentionalDto } from './dto/create-attendentional.dto';
 import { UpdateAttendentionalDto } from './dto/update-attendentional.dto';
 
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('attendentionals')
 export class AttendentionalsController {
   constructor(private readonly attendentionalsService: AttendentionalsService) {}

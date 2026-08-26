@@ -4,9 +4,10 @@ import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 // alias type
 export type jwtTokenType = 'ACCESS' | 'REFRESH' | "SESSION";
 
-// payload  interface
 export interface JwtPayload {
-  id: string;
+  userId: string;
+  email: string; // bo'sh bo'lsa "" keladi
+  token_type?: jwtTokenType; // Guard orqali biriktiriladi
 }
 export interface JwtVerfyPayload {
   email: string;

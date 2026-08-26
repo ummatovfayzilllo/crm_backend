@@ -1,5 +1,5 @@
 import { extname } from "path";
-import { urlGenerator } from "./generator.types";
+import { urlGenerator } from "./generators";
 import { ConfigService } from "@nestjs/config";
 
 /* =========================
@@ -149,7 +149,7 @@ export function getFieldName(fileName: string): string {
 /* =========================
  *  GROUP BY FIELD (optional)
  * ========================= */
-export function groupFilesByField(config :ConfigService,files?: Express.Multer.File[] | null,) {
+export function groupFilesByField(files?: Express.Multer.File[] | null) {
   if (!files || !Array.isArray(files)) return {};
 
   const result: Record<string, string[]> = {};
@@ -157,7 +157,8 @@ export function groupFilesByField(config :ConfigService,files?: Express.Multer.F
   for (const file of files) {
     const field = getFieldName(file.originalname);
     if (!result[field]) result[field] = [];
-    result[field].push(urlGenerator(config,file.filename));
+    // DB ga faqat sof fayl nomini yozamiz
+    result[field].push(file.filename);
   }
 
   return result;

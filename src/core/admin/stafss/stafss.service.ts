@@ -1,7 +1,9 @@
+import { flattenStaff } from '../../../common/utils/flatter_functions';
+import { ConfigService } from '@nestjs/config';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/core/prisma/prisma.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
-import { checkExistsResurs } from 'src/common/types/check.functions.types';
+import { checkExistsResurs } from 'src/common/utils/check.functions';
 import { ModelsEnumInPrisma } from 'src/common/types/global.types';
 import { User } from '@prisma/client';
 import { UserFindEntitiy } from 'src/modules/users/entities/user.entity';
@@ -12,7 +14,7 @@ export class StafssService {
 
     constructor(
         private readonly prisma: PrismaService,
-        private readonly st : StaffsService,
+        private readonly st : StaffsService, private readonly config: ConfigService,
     ) { }
 
     async createStaff(data: CreateStaffDto) {
@@ -31,7 +33,7 @@ export class StafssService {
         })
         return {
             message : "This action create new staff !",
-            staff : this.st.flattenStaff(newStaff)
+            staff : flattenStaff(this.config, newStaff as any)
         }
     }
 

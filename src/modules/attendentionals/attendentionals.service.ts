@@ -1,3 +1,5 @@
+import { flattenRecord } from '../../common/utils/flatter_functions';
+import { ConfigService } from '@nestjs/config';
 import {
   ConflictException,
   Injectable,
@@ -10,37 +12,8 @@ import { PrismaService } from 'src/core/prisma/prisma.service';
 
 @Injectable()
 export class AttendentionalsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly config: ConfigService) {}
 
-  // 🔹 Helper — normalize / flatten function
-  private flattenRecord(record: any) {
-    // safety checks for nested relations
-    const student = record?.student ?? null;
-    const user = student?.user ?? null;
-
-    const studentFirstName = user?.firstName ?? student?.firstName ?? null;
-    const studentLastName = user?.lastName ?? student?.lastName ?? null;
-    const studentFullName =
-      studentFirstName && studentLastName
-        ? `${studentFirstName} ${studentLastName}`
-        : studentFirstName ?? studentLastName ?? record.studentName ?? null;
-
-    return {
-      id: record.id,
-      lessonId: record.lessonId,
-      lessonName: record.lesson?.name ?? null,
-      studentId: record.studentId,
-      studentName: studentFullName,
-      studentEmail: user?.email ?? record.studentEmail ?? null,
-      studentPhone: user?.phone ?? record.studentPhone ?? null,
-      kelganVaqti: record.kelganVaqti ?? null,
-      kelgan: record.kelgan ?? false,
-      isDeleted: record.isDeleted ?? false,
-      createdAt: record.createdAt ?? null,
-    };
-  }
-
-  // 🟢 CREATE (bulk create with attendances[])
   async create(data: CreateAttendentionalDto) {
     const { lessonId, attendances } = data;
 
@@ -111,7 +84,7 @@ export class AttendentionalsService {
     return {
       message: 'All attendance records retrieved',
       count: records.length,
-      attendentionals: records.map((r) => this.flattenRecord(r)),
+      attendentionals: records.map((r) => flattenRecord(this.config, r)),
     };
   }
 
@@ -130,7 +103,7 @@ export class AttendentionalsService {
 
     return {
       message: `Attendance record #${id} retrieved successfully`,
-      attendentional: this.flattenRecord(record),
+      attendentional: flattenRecord(this.config, record),
     };
   }
 
@@ -173,7 +146,7 @@ export class AttendentionalsService {
 
     return {
       message: `Attendance record #${id} updated successfully`,
-      attendentional: this.flattenRecord(updated),
+      attendentional: flattenRecord(this.config, updated),
     };
   }
 
@@ -197,7 +170,7 @@ export class AttendentionalsService {
     return {
       message: `All attendance records for lesson [#${lessonId}]`,
       count: records.length,
-      attendentionals: records.map((r) => this.flattenRecord(r)),
+      attendentionals: records.map((r) => flattenRecord(this.config, r)),
     };
   }
 
@@ -228,7 +201,7 @@ export class AttendentionalsService {
     return {
       message: `All attendance records for group [#${groupId}]`,
       count: records.length,
-      attendentionals: records.map((r) => this.flattenRecord(r)),
+      attendentionals: records.map((r) => flattenRecord(this.config, r)),
     };
   }
 
@@ -250,7 +223,7 @@ export class AttendentionalsService {
 
     return {
       message: `Attendance record #${id} soft-deleted successfully`,
-      attendentional: this.flattenRecord(deleted),
+      attendentional: flattenRecord(this.config, deleted),
     };
   }
 }

@@ -1,9 +1,18 @@
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/global/guards/jwt.auth.guard';
+import { RoleAuthGuard } from 'src/global/guards/role.guard';
+import { UserRole } from 'src/global/decorators/auth.decorators';
+import { UserRoles } from 'src/common/types/user.types';
 import { Body, Controller, Param, Post } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateRoleDto } from './roles/dto/create.role.dto';
 import { UpdateCourseDto } from 'src/modules/courses/dto/update-course.dto';
 import { CreateStaffDto } from './stafss/dto/create-staff.dto';
 
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RoleAuthGuard)
+@UserRole(UserRoles.ADMIN)
 @Controller('admin')
 export class AdminController {
     constructor(

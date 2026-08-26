@@ -1,14 +1,17 @@
 import { ConfigService } from "@nestjs/config";
-import { EmailCodeEnum } from "./enum.types";
+import { EmailCodeEnum } from "../types/enum.types";
 import { extname, join } from "path";
-import { archiveExtensions, documentExtensions, getMimeType, imageExtensions, videoExtensions } from "./filter.file.types";
+import { archiveExtensions, documentExtensions, getMimeType, imageExtensions, videoExtensions } from "./file.filters";
 import { createReadStream, existsSync, mkdirSync } from "fs";
 import { Response } from "express";
 import { stat } from "fs/promises";
 import { createCanvas, Canvas, CanvasRenderingContext2D } from 'canvas';
 import { writeFileSync } from 'fs';
 
-export function urlGenerator(config: ConfigService, param: string): string {
+export function urlGenerator(config: ConfigService, param: string): string | null {
+  if (!param) return null;
+  if (param.startsWith('http')) return param; // Agar tashqi link bo'lsa tegmaymiz
+
   const extract = extname(param).toLowerCase();
 
   let serverPath: string;
@@ -21,41 +24,39 @@ export function urlGenerator(config: ConfigService, param: string): string {
   } else {
     serverPath = "docs";
   }
-  console.log(config)
-  const host = config.get<string>("HOST");
-  const port = config.get<string>("PORT");
-  // Xato tuzatildi: http
+  
+  const host = config.get<string>("HOST") || 'localhost';
+  const port = config.get<string>("PORT") || 3000;
   const baseUrl = config.get<string>("APP_BASE_URL") || `http://${host}:${port}`;
 
-  return `api/${serverPath}/${param}`;
+  return `${baseUrl}/api/${serverPath}/${param}`;
 }
 
 export function messageGenerator(
   typeMessage: EmailCodeEnum = EmailCodeEnum.REGISTER,
   code: number
 ): string {
-  // Xato tuzatildi: verify
   return `<h1>Your ${typeMessage} verify code 🧐🧐🧐</h1>
             <p>Code: ${code}</p>`;
 }
-
-// Yarim qolgan funksiya o'chirildi - kerak emas
 
 export function getPathInFileType(fileName: string): string {
   const extract = extname(fileName).toLowerCase();
   let filePath: string;
 
+  // process.env.UPLOAD_DIR orqali fayllarni doimiy (persistent) xotiraga yozish imkoniyati
+  const baseUploadDir = process.env.UPLOAD_DIR || join(process.cwd(), "uploads");
+
   if (imageExtensions.includes(extract)) {
-    filePath = join(process.cwd(), "uploads", "images");
+    filePath = join(baseUploadDir, "images");
   } else if (videoExtensions.includes(extract)) {
-    filePath = join(process.cwd(), "uploads", "videos");
+    filePath = join(baseUploadDir, "videos");
   } else if (documentExtensions.includes(extract)) {
-    filePath = join(process.cwd(), "uploads", "docs");
+    filePath = join(baseUploadDir, "docs");
   } else if (archiveExtensions.includes(extract)) {
-    // Xato tuzatildi: archive
-    filePath = join(process.cwd(), "uploads", "archive");
+    filePath = join(baseUploadDir, "archive");
   } else {
-    filePath = join(process.cwd(), "uploads", "unknown");
+    filePath = join(baseUploadDir, "unknown");
   }
 
   if (!existsSync(filePath)) {
@@ -181,7 +182,7 @@ export class ImageGenerator {
   /**
    * Avatar rasmi yaratish
    */
-  public generateAvatar(text: string,config : ConfigService): string {
+  public generateAvatar(text: string,config : ConfigService): string | null {
     // Faqat birinchi 2 ta harfni olish
     const initials = text.substring(0, 2).toUpperCase();
 

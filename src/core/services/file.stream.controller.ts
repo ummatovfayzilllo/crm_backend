@@ -12,7 +12,7 @@ import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { FileStreamService } from './file.stream.service';
 import { Public } from 'src/global/decorators/auth.decorators';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { fileStorages } from 'src/common/types/upload_types';
+import { fileStorages } from 'src/common/config/multer.config';
 
 
 @Public()

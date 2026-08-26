@@ -3,7 +3,7 @@ import { CreateRomDto } from './dto/create-rom.dto';
 import { UpdateRomDto } from './dto/update-rom.dto';
 import { PrismaService } from 'src/core/prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
-import { checAlreadykExistsResurs, checkExistsResurs } from 'src/common/types/check.functions.types';
+import { checAlreadykExistsResurs, checkExistsResurs } from 'src/common/utils/check.functions';
 import { ModelsEnumInPrisma } from 'src/common/types/global.types';
 import { Rom } from '@prisma/client';
 

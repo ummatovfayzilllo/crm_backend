@@ -1,3 +1,6 @@
+import { ConfigService } from '@nestjs/config';
+import { flattenGroup } from '../../common/utils/flatter_functions';
+
 import {
   BadGatewayException,
   BadRequestException,
@@ -8,58 +11,11 @@ import {
 import { CreateGroupeDto } from './dto/create-groupe.dto';
 import { UpdateGroupeDto } from './dto/update-groupe.dto';
 import { PrismaService } from 'src/core/prisma/prisma.service';
-import { ConfigService } from '@nestjs/config';
-import {
-  checAlreadykExistsResurs,
-  checkExistsResurs,
-} from 'src/common/types/check.functions.types';
+
+import { checAlreadykExistsResurs, checkExistsResurs } from 'src/common/utils/check.functions';
 import { ModelsEnumInPrisma } from 'src/common/types/global.types';
 import { Course, Rom } from '@prisma/client';
 import { UserFindEntitiy } from '../users/entities/user.entity';
-
-/**
- * VALIDATE START DATE
- */
-export function checkStartDate(date: string) {
-  const today = new Date();
-  const startDate = new Date(date);
-  if (today > startDate) {
-    throw new BadRequestException('StartDate must be greater than today');
-  }
-}
-
-/**
- * FLATTEN GROUP
- */
-function flattenGroup(group: any) {
-  if (!group) return null;
-  return {
-    id: group.id,
-    name: group.name,
-    startDate: group.startDate,
-    isStart: group.isStart,
-    isEnd: group.isEnd,
-    inActive: group.inActive,
-
-    teacherId: group.teacherId,
-    teacherFirstName: group.teacher?.user?.firstName,
-    teacherLastName: group.teacher?.user?.lastName,
-    teacherPhone: group.teacher?.user?.phone,
-
-    courseId: group.courseId,
-    courseName: group.course?.name,
-    coursePrice: group.course?.price,
-
-    romId: group.romId,
-    romName: group.rom?.name,
-    romNumber: group.rom?.romNumber,
-    lessons : group.Lesson || null,
-
-    studentCount: group._count?.students || 0,
-    lessonCount: group._count?.Lesson || 0,
-    paymentCount: group._count?.GroupPayment || 0,
-  };
-}
 
 @Injectable()
 export class GroupesService {
@@ -107,7 +63,7 @@ export class GroupesService {
       throw new BadRequestException(`Room [${rom.name}] is closed`);
 
     // === DATE VALIDATION ===
-    checkStartDate(data.startDate);
+    // checkStartDate removed
 
     // === DUPLICATE NAME CHECK ===
     await checAlreadykExistsResurs(
@@ -130,7 +86,7 @@ export class GroupesService {
 
     return {
       message: 'New group created successfully',
-      group: flattenGroup(newGroup),
+      group: flattenGroup(this.config, <any>newGroup),
     };
   }
 
@@ -151,7 +107,7 @@ export class GroupesService {
 
     return {
       count: groupes.length,
-      groupes: groupes.map(flattenGroup),
+      groupes: groupes.map(g => flattenGroup(this.config, <any>g)),
     };
   }
 
@@ -169,7 +125,7 @@ export class GroupesService {
     });
     return {
       count: res.length,
-      groupes: res.map(flattenGroup),
+      groupes: res.map(g => flattenGroup(this.config, <any>g)),
     };
   }
 
@@ -190,7 +146,7 @@ export class GroupesService {
     if (!group) throw new NotFoundException(`Group [${id}] not found or deleted`);
 
     return {
-      group: flattenGroup(group),
+      group: flattenGroup(this.config, <any>group),
     };
   }
   async findOneByCourseId(id: string) {
@@ -207,7 +163,7 @@ export class GroupesService {
     if (!group) throw new NotFoundException(`Group [${id}] not found or deleted`);
 
     return {
-      group: flattenGroup(group),
+      group: flattenGroup(this.config, <any>group),
     };
   }
   /**
@@ -220,7 +176,7 @@ export class GroupesService {
     if (!group)
       throw new NotFoundException(`Group [${id}] not found or deleted`);
 
-    if (dto.startDate) checkStartDate(dto.startDate);
+    if (dto.startDate) {}
 
     const updated = await this.prisma.group.update({
       where: { id },
@@ -235,7 +191,7 @@ export class GroupesService {
 
     return {
       message: 'Group updated successfully',
-      group: flattenGroup(updated),
+      group: flattenGroup(this.config, <any>updated),
     };
   }
 

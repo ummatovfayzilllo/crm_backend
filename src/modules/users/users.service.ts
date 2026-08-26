@@ -1,14 +1,15 @@
+import { flattenUser } from '../../common/utils/flatter_functions';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/core/prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
-import { checkExistsResurs } from 'src/common/types/check.functions.types';
+import { checkExistsResurs } from 'src/common/utils/check.functions';
 import { User } from '@prisma/client';
 import { ModelsEnumInPrisma } from 'src/common/types/global.types';
-import { unlinkFile } from 'src/common/types/file.cotroller.typpes';
+import { unlinkFile } from 'src/common/utils/file.utils';
 import * as bcrypt from 'bcrypt';
-import { urlGenerator } from 'src/common/types/generator.types';
+import { urlGenerator } from 'src/common/utils/generators';
 
 @Injectable()
 export class UsersService {
@@ -17,39 +18,14 @@ export class UsersService {
     private readonly config: ConfigService,
   ) {}
 
-  /** 🔹 Helper: flatten user structure */
-  private flattenUser(user: any) {
-    if (!user) return null;
-    return {
-      id: user.id,
-      fullName: `${user.firstName} ${user.lastName}`.trim(),
-      father: user.father,
-      email: user.email,
-      phone: user.phone,
-      image: user.image,
-      birthDay: user.birthDay,
-      isDeleted: user.isDeleted,
-      createdAt: user.createdAt,
-      roles : user.Staff && user.Staff[0]
-        ? user.Staff.map(staff => {
-          return {
-            id: staff.id,
-            role: staff.role,
-            isDeleted: staff.isDeleted,
-          }
-        })
-        : null,
-    };
-  }
-
-  /** 🔸 Create user */
+    /** 🔸 Create user */
   async create(data: CreateUserDto, image?: Express.Multer.File) {
     const { email, phone } = data;
     const existsInEmail = await this.prisma.user.findFirst({ where: { email } });
     const existsInPhone = await this.prisma.user.findFirst({ where: { phone } });
 
     if (existsInPhone || existsInEmail)
-      return { message: 'Already exists', user: this.flattenUser(existsInPhone || existsInEmail) };
+      return { message: 'Already exists', user: flattenUser(this.config, <any>(existsInPhone || existsInEmail)) };
 
     const hashedPass = await bcrypt.hash(data.password, 10);
     const newUser = await this.prisma.user.create({
@@ -65,7 +41,7 @@ export class UsersService {
 
     const {Staff} = newUser
     
-    return { message: 'User created', user: this.flattenUser(newUser) };
+    return { message: 'User created', user: flattenUser(this.config, newUser) };
   }
 
   /** 🔸 Get all users */
@@ -77,7 +53,7 @@ export class UsersService {
     return {
       message: 'All active users',
       count: users.length,
-      users: users.map((u) => this.flattenUser(u)),
+      users: users.map((u) => flattenUser(this.config, u)),
     };
   }
 
@@ -90,7 +66,7 @@ export class UsersService {
 
     if (!user) throw new NotFoundException(`User not found [${id}]`);
 
-    return { message: `User found`, user: this.flattenUser(user) };
+    return { message: `User found`, user: flattenUser(this.config, user) };
   }
 
   /** 🔸 Update user */
@@ -122,7 +98,7 @@ export class UsersService {
       include: { Staff: true },
     });
 
-    return { message: 'User updated', user: this.flattenUser(updatedUser) };
+    return { message: 'User updated', user: flattenUser(this.config, updatedUser) };
   }
 
   /** 🔸 Soft delete user */
@@ -147,7 +123,7 @@ export class UsersService {
       include: { Staff: true },
     });
 
-    return { message: 'User soft-deleted', user: this.flattenUser(deleted) };
+    return { message: 'User soft-deleted', user: flattenUser(this.config, deleted) };
   }
 
   /** 🔸 Restore deleted user */
@@ -164,6 +140,6 @@ export class UsersService {
       include: { Staff: true },
     });
 
-    return { message: 'User restored', user: this.flattenUser(restored) };
+    return { message: 'User restored', user: flattenUser(this.config, restored) };
   }
 }

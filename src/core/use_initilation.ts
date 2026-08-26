@@ -7,7 +7,10 @@ import * as cookieParser from 'cookie-parser';
 import { DeviceMiddleware } from "src/global/middlewares/device.middleware";
 
 export const initGlobalApp = (app: INestApplication) => {
-    const config = new DocumentBuilder().setTitle("Edfix Clone").build()
+    const config = new DocumentBuilder()
+        .setTitle("Edfix Clone")
+        .addBearerAuth()
+        .build()
     app.setGlobalPrefix("api")
     app.useGlobalPipes(new ValidationPipe({
         whitelist: true,

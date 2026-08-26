@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client';
+export type UserFullEntity = Prisma.UserGetPayload<{ include: { Staff: true } }>;
 import { RoleStafs, Staff } from "@prisma/client"
 
 

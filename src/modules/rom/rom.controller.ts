@@ -1,8 +1,13 @@
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/global/guards/jwt.auth.guard';
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
 import { RomService } from './rom.service';
 import { CreateRomDto } from './dto/create-rom.dto';
 import { UpdateRomDto } from './dto/update-rom.dto';
 
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('rooms')
 export class RomController {
   constructor(private readonly romService: RomService) { }

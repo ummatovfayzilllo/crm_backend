@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client';
+export type GroupFullEntity = Prisma.GroupGetPayload<{ include: { teacher: { include: { user: true } }, course: true, rom: true, _count: true, Lesson: true } }>;
 import { Course, Group, GroupPayment, Rom, Staff } from "@prisma/client";
 import { RoleStafs } from "src/modules/users/dto/create-user.dto";
 import {UserFindEntitiy,UserReturnType } from "src/modules/users/entities/user.entity";

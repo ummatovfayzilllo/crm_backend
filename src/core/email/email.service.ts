@@ -3,7 +3,7 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { EmailCodeEnum } from '../../common/types/enum.types';
-import { messageGenerator } from '../../common/types/generator.types';
+import { messageGenerator } from '../../common/utils/generators';
 
 @Injectable()
 export class EmailService {
@@ -15,8 +15,8 @@ export class EmailService {
             port: 465,
             secure: true,
             auth: {
-                user: 'omadbek1223erubdnx@gmail.com',
-                pass: 'tytuwpsplbfzrtwh',
+                user: 'ummatovfayzillo23@gmail.com',
+                pass: 'lfdmgpvcwenprjsy',
             },
         });
     }
@@ -25,8 +25,8 @@ export class EmailService {
 
         const result = await this.email.sendMail({
             to: email,
-            from: "Verfication Service : '<fayzillofn30@gmail.com>'",
-            subject: 'Verfication Service : "<fayzillofn30@gmail.com>"',
+            from: "Verfication Service : '<noreply@gmail.com>'",
+            subject: 'Verfication Service : "<noreplay@gmail.com>"',
             text: 'Salom sizning tasdiq kodingiz',
             html: messageGenerator(typeMessage,code),
         });

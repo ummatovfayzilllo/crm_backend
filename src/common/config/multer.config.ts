@@ -3,7 +3,7 @@ import { diskStorage } from 'multer';
 import { existsSync, mkdirSync } from 'fs';
 import { extname, join } from 'path';
 import { UnsupportedMediaTypeException } from '@nestjs/common';
-import { getPathInFileType } from './generator.types';
+import { getPathInFileType } from '../utils/generators';
 import { Request } from 'express';
 
 export const courseFileFields = [

@@ -31,6 +31,8 @@ export class RoleAuthGuard implements CanActivate {
       throw new ForbiddenException('Foydalanuvchi roli aniqlanmadi');
     }
 
+    if (!roles) return true;
+
     if (roles.includes(user.role) || user.role === UserRoles.ADMIN) {
       return true;
     }

@@ -1,3 +1,5 @@
+import { flattenLesson } from '../../common/utils/flatter_functions';
+import { ConfigService } from '@nestjs/config';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
@@ -5,67 +7,8 @@ import { PrismaService } from 'src/core/prisma/prisma.service';
 
 @Injectable()
 export class LessonsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService, private readonly config: ConfigService) { }
 
-  private flattenLesson(lesson: any) {
-    if (!lesson) return null;
-    return {
-      id: lesson.id,
-      lessonNumber: lesson.lessonNumber,
-      startDate: lesson.startDate,
-      endDate: lesson.endDate,
-      isDeleted: lesson.isDeleted,
-
-      groupId: lesson.groupId,
-      groupName: lesson.group?.name,
-      roomName: lesson.group?.rom?.name,
-      roomNumber: lesson.group?.rom?.romNumber,
-
-      teacherId: lesson.teacherId,
-      teacherName:
-        `${lesson.teacher?.user?.firstName || ''} ${lesson.teacher?.user?.lastName || ''}`.trim(),
-
-      studentsCount: lesson.group?.students?.length || 0,
-      attendCount: lesson.Attendentionals?.length || 0,
-    };
-  }
-
-  /**
-   * ✅ ROOM BANDLIGINI TEKSHIRISH
-   */
-  private async checkRoomAvailability(roomId: string, startDate: Date, endDate: Date, excludeLessonId?: string) {
-    const overlappingLesson = await this.prisma.lesson.findFirst({
-      where: {
-        isDeleted: false,
-        id: excludeLessonId ? { not: excludeLessonId } : undefined,
-        group: {
-          romId: roomId,
-          isDeleted: false,
-        },
-        // vaqt oraliqlarini to‘qnashishini tekshirish
-        OR: [
-          {
-            startDate: { lte: endDate },
-            endDate: { gte: startDate },
-          },
-        ],
-      },
-      include: { group: true },
-    });
-
-    if (overlappingLesson) {
-      throw new BadRequestException(
-        `Xona [${overlappingLesson.group.romId}] bu vaqtda band! (${overlappingLesson.startDate.toISOString()} - ${overlappingLesson.endDate.toISOString()})`,
-      );
-    }
-  }
-
-
-
-
-  /**
-   * CREATE LESSON
-   */
   async create(data: CreateLessonDto) {
     const { groupId, startDate, teacherId } = data;
 
@@ -89,7 +32,7 @@ export class LessonsService {
     endDate.setMinutes(endDate.getMinutes() + oldGroup.course.durationMinut);
 
     // ✅ XONA BANDLIGINI TEKSHIRISH
-    await this.checkRoomAvailability(oldGroup.romId, startDate, endDate);
+    // await this.checkRoomAvailability(oldGroup.romId, startDate, endDate);
 
     // === LAST LESSON ===
     const lastLesson = await this.prisma.lesson.findFirst({
@@ -115,7 +58,7 @@ export class LessonsService {
 
     return {
       message: 'Lesson created successfully',
-      lesson: this.flattenLesson(newLesson),
+      lesson: flattenLesson(this.config, <any>newLesson),
     };
   }
 
@@ -133,7 +76,7 @@ export class LessonsService {
     const startDate = data.startDate ? new Date(data.startDate) : oldLesson.startDate;
     const endDate = new Date(new Date(startDate).getTime() + oldLesson.group.course.durationMinut * 60000);
 
-    await this.checkRoomAvailability(oldLesson.group.romId, startDate, endDate, id);
+    // await this.checkRoomAvailability(oldLesson.group.romId, startDate, endDate, id);
 
     const updatedLesson = await this.prisma.lesson.update({
       where: { id },
@@ -147,7 +90,7 @@ export class LessonsService {
 
     return {
       message: `Lesson [${id}] updated successfully`,
-      lesson: this.flattenLesson(updatedLesson),
+      lesson: flattenLesson(this.config, <any>updatedLesson),
     };
   }
 
@@ -169,7 +112,7 @@ export class LessonsService {
     return {
       message: 'All active lessons',
       count: lessons.length,
-      lessons: lessons.map((l) => this.flattenLesson(l)),
+      lessons: lessons.map((l) => flattenLesson(this.config, <any>l)),
     };
   }
 
@@ -190,7 +133,7 @@ export class LessonsService {
 
     return {
       message: `Lesson [${id}] details`,
-      lesson: this.flattenLesson(lesson),
+      lesson: flattenLesson(this.config, <any>lesson),
     };
   }
 
@@ -211,7 +154,7 @@ export class LessonsService {
     return {
       message: `Lessons by group [${groupId}]`,
       count: lessons.length,
-      lessons: lessons.map((l) => this.flattenLesson(l)),
+      lessons: lessons.map((l) => flattenLesson(this.config, <any>l)),
     };
   }
 
@@ -232,7 +175,7 @@ export class LessonsService {
 
     return {
       message: `Lesson found by startDate [${startDate}]`,
-      lesson: this.flattenLesson(lesson),
+      lesson: flattenLesson(this.config, <any>lesson),
     };
   }
 

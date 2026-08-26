@@ -1,59 +1,108 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { EmailService } from '../email/email.service';
 import { CacheService } from './cache.service';
+import { EmailService as MailService } from '../email/email.service';
+import { JwtSubService as JwtAuthService } from '../jwt/jwt.service';
+import { ConfigService } from '@nestjs/config';
+import { flattenAuthUser } from '../../common/utils/flatter_functions';
+import * as bcrypt from 'bcrypt';
 import { EmailCodeEnum } from 'src/common/types/enum.types';
-import { JwtSubService } from '../jwt/jwt.service';
 import { CreateOtpDto } from './dto/create-email.dto';
+import { AuthRegisterDto } from './dto/create-auth.dto';
+import { LoginDto } from './dto/login-auth.dto';
+import { checAlreadykExistsResurs } from 'src/common/utils/check.functions';
+import { ModelsEnumInPrisma } from 'src/common/types/global.types';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly jwtService: JwtSubService,
-    private readonly emailService: EmailService,
-    private readonly cacheService: CacheService,
+    private readonly cache: CacheService,
+    private readonly mail: MailService,
+    private readonly jwtService: JwtAuthService,
+    private readonly config: ConfigService,
   ) {}
 
-  // 📩 1. OTP yuborish
   async sendOtp(data: CreateOtpDto) {
+    const { email, action } = data;
+    const code = Math.floor(1000 + Math.random() * 9000);
+    let sessionToken: any = undefined;
 
-    // 🔢 Random 6 xonali kod
-    const code = Math.floor(100000 + Math.random() * 900000);
-
-    await this.emailService.sendResedPasswordVerify(
-      data.email,
-      code,
-      EmailCodeEnum.REGISTER,
-    );
-
-    // ⏱️ Cache’da 5 daqiqa saqlaymiz
-    this.cacheService.set(data.email, { email: data.email, code }, 1000 * 60 * 5);
-
+    if (action === EmailCodeEnum.REGISTER) {
+      this.cache.set(email, { code, email }, 180000);
+    } else if (action === EmailCodeEnum.RESET_PASSWORD) {
+      const user = await this.prisma.user.findFirst({ where: { email: String(email) } });
+      if (!user || user.isDeleted) throw new NotFoundException("Foydalanuvchi topilmadi");
+      this.cache.set(email, { code, email }, 180000);
+      sessionToken = await this.jwtService.getSessionToken(user.id, user.email);
+    }
+    
+    await this.mail.sendResedPasswordVerify(email, code, action);
+    return { message: "OTP code sent to email", sessionToken };
   }
 
-  // ✅ 2. Mavjud foydalanuvchini tasdiqlash
-  async verifyExistsUser(userId: string, data: { email: string; code: string }) {
-    const cache = this.cacheService.get(data.email);
-    if (!cache || cache.code !== Number(data.code)) {
-      throw new BadRequestException('Invalid or expired OTP code');
+  async register(data: AuthRegisterDto) {
+    const { email, code, password, firstName, lastName, phone } = data;
+    const cacheData = this.cache.get(email);
+    if (!cacheData || cacheData.code !== code) {
+      throw new BadRequestException("Noto'g'ri yoki eskirgan OTP kod");
     }
-    return data
+
+    await checAlreadykExistsResurs(this.prisma, ModelsEnumInPrisma.USERS, "email", email);
+    const passwordHash = await bcrypt.hash(password, 10);
+    
+    const newUser = await this.prisma.user.create({
+      data: {
+        email,
+        password: passwordHash,
+        firstName,
+        lastName,
+        phone,
+        birthDay: new Date(),
+        Staff: {
+          create: { role: 'STUDENT' }
+        }
+      },
+      include: { Staff: true }
+    });
+    
+    this.cache.delete(email);
+    const tokens = { accessToken: await this.jwtService.getAccessToken(newUser.id), refreshToken: await this.jwtService.getRefreshToken(newUser.id) };
+    
+    return { user: flattenAuthUser(this.config, newUser as any), tokens };
   }
 
-  // 🧑‍💻 3. Yangi foydalanuvchini yaratish va kodni tekshirish
-  async createUserAndVerifiyCode(data: { email: string; code: string }) {
-    const cache = this.cacheService.get(data.email);
+  async login(data: LoginDto) {
+    const user = await this.prisma.user.findFirst({
+      where: { email: String(data.email) },
+      include: { Staff: true }
+    });
+    if (!user || user.isDeleted) throw new BadRequestException("Email yoki parol xato");
+    
+    const isMatch = await bcrypt.compare(data.password, user.password);
+    if (!isMatch) throw new BadRequestException("Email yoki parol xato");
+    
+    const tokens = { accessToken: await this.jwtService.getAccessToken(user.id), refreshToken: await this.jwtService.getRefreshToken(user.id) };
+    return { user: flattenAuthUser(this.config, user as any), tokens };
+  }
 
-    if (!cache || cache.code !== Number(data.code)) {
-      throw new BadRequestException('Invalid or expired OTP code');
+  async verifyResetToken(data: { email: string, code: number, newPassword: string }) {
+    const { email, code, newPassword } = data;
+    const cacheData = this.cache.get(email);
+    if (!cacheData || cacheData.code !== code) {
+      throw new BadRequestException("Noto'g'ri yoki eskirgan OTP kod");
     }
-
+    
+    const user = await this.prisma.user.findFirst({ where: { email: String(email) } });
+    if (!user || user.isDeleted) throw new NotFoundException("Foydalanuvchi topilmadi");
+    
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { password: passwordHash }
+    });
+    
+    this.cache.delete(email);
+    return { message: "Parol muvaffaqiyatli yangilandi" };
   }
 }

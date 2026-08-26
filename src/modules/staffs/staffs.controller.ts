@@ -1,6 +1,11 @@
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/global/guards/jwt.auth.guard';
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { StaffsService } from './staffs.service';
 
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('staffs')
 export class StaffsController {
   constructor(private readonly staffsService: StaffsService) { }

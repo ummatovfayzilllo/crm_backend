@@ -1,6 +1,6 @@
 import { existsSync, unlinkSync } from "fs";
 import { join } from "path";
-import { getPathInFileType } from "./generator.types";
+import { getPathInFileType } from "./generators";
 
 
 export async function unlinkFile(filename : string){

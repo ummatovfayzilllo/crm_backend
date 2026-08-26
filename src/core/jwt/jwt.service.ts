@@ -17,27 +17,29 @@ export class JwtSubService {
     private readonly configService: ConfigService,
   ) {}
 
-  async getAccessToken(user: Staff) {
-    const { id  } = user;
+  async getAccessToken(userId: string) {
     const token = await getToken(
       this.jwtService,
-      { id  },
+      { userId, email: "" },
       this.configService,
     );
     return token;
   }
 
-  async getSessionToken(user : Staff){
-    const {id} = user
-    const token = await getToken(this.jwtService,{id},this.configService,jwtTokenTypeEnum.SESSION)
-    return token
-  }
-
-  async getRefreshToken(user: Staff) {
-    const { id } = user;
+  async getSessionToken(userId: string, email: string) {
     const token = await getToken(
       this.jwtService,
-      { id  },
+      { userId, email },
+      this.configService,
+      jwtTokenTypeEnum.SESSION
+    );
+    return token;
+  }
+
+  async getRefreshToken(userId: string) {
+    const token = await getToken(
+      this.jwtService,
+      { userId, email: "" },
       this.configService,
       jwtTokenTypeEnum.REFRESH,
     );

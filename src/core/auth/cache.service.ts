@@ -3,6 +3,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 export type UserCacheValue = {
     code: number;
     email: string;
+    newPassword?: string;
 };
 
 @Injectable()

@@ -35,24 +35,37 @@ export class JwtAuthGuard implements CanActivate {
     }
   }
   async getPayload(req: Request, ctx: ExecutionContext) {
-    const auth = req.headers.authorization;
+    const authHeader = req.headers.authorization;
+    let token = '';
 
-    if (!auth) throw new UnauthorizedException('Token not found !');
+    // 1. Path bo'yicha qaysi tokenni kutayotganimizni aniqlaymiz
+    const isResetPath = req.url.includes('reset');
+    const expectedTokenType = isResetPath 
+      ? jwtTokenTypeEnum.SESSION 
+      : jwtTokenTypeEnum.ACCESS;
 
-    if (!auth.startsWith('Bearer '))
-      throw new UnauthorizedException(
-        'Invalid toke type is missing Bearer token !',
-      );
+    // 2. Tokenni olish
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    } else {
+      // Cookie'dan ham pathga mos tokenni olamiz
+      token = isResetPath 
+        ? req.cookies?.sessionToken 
+        : req.cookies?.accessToken;
+    }
+
+    if (!token) throw new UnauthorizedException('Token topilmadi!');
 
     try {
       const user: JwtPayload = await this.jwtSubService.verifyToken<JwtPayload>(
-        auth.split(' ')[1],
-        jwtTokenTypeEnum.ACCESS,
+        token,
+        expectedTokenType,
       );
+      user.token_type = expectedTokenType;
       req['user'] = user;
       return true;
     } catch (error) {
-      throw new UnauthorizedException('Invalid token or expired token !');
+      throw new UnauthorizedException('Token yaroqsiz yoki eskirgan!');
     }
   }
 }

@@ -8,6 +8,9 @@ import { FileStreamService } from './services/file.stream.service';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from 'src/global/guards/jwt.auth.guard';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,6 +26,12 @@ import { AdminModule } from './admin/admin.module';
     AdminModule,
   ],
   controllers : [FileStreamerController],
-  providers : [FileStreamService]
+  providers : [
+    FileStreamService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    }
+  ]
 })
 export class CoreModule { }

@@ -1,3 +1,11 @@
+> **🤖 AI Sessiyani Davom Ettirish:** 
+> Ushbu loyiha bo'yicha orkestratsiya va sun'iy intellekt xotirasini aynan to'xtagan joyidan davom ettirish uchun terminalda quyidagi buyruqni kiriting:
+> ```bash
+> agy -c d34969a9-910e-4045-bfba-0195a2a70786
+> ```
+
+---
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>

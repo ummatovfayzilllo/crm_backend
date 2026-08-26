@@ -3,10 +3,10 @@ import { PrismaService } from 'src/core/prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { urlGenerator } from 'src/common/types/generator.types';
-import { unlinkFile } from 'src/common/types/file.cotroller.typpes';
+import { urlGenerator } from 'src/common/utils/generators';
+import { unlinkFile } from 'src/common/utils/file.utils';
 import { ModelsEnumInPrisma } from 'src/common/types/global.types';
-import { checAlreadykExistsResurs, checkExistsResurs } from 'src/common/types/check.functions.types';
+import { checAlreadykExistsResurs, checkExistsResurs } from 'src/common/utils/check.functions';
 import { Course } from '@prisma/client';
 
 @Injectable()

@@ -1,5 +1,5 @@
 import { ConflictException, HttpException, NotFoundException } from "@nestjs/common";
-import { ModelsEnumInPrisma } from "./global.types";
+import { ModelsEnumInPrisma } from "../types/global.types";
 import { PrismaService } from "src/core/prisma/prisma.service";
 
 
