@@ -1,14 +1,23 @@
-import { ConfigService } from "@nestjs/config";
-import { EmailCodeEnum } from "../types/enum.types";
-import { extname, join } from "path";
-import { archiveExtensions, documentExtensions, getMimeType, imageExtensions, videoExtensions } from "./file.filters";
-import { createReadStream, existsSync, mkdirSync } from "fs";
-import { Response } from "express";
-import { stat } from "fs/promises";
+import { ConfigService } from '@nestjs/config';
+import { EmailCodeEnum } from '../types/enum.types';
+import { extname, join } from 'path';
+import {
+  archiveExtensions,
+  documentExtensions,
+  getMimeType,
+  imageExtensions,
+  videoExtensions,
+} from './file.filters';
+import { createReadStream, existsSync, mkdirSync } from 'fs';
+import { Response } from 'express';
+import { stat } from 'fs/promises';
 import { createCanvas, Canvas, CanvasRenderingContext2D } from 'canvas';
 import { writeFileSync } from 'fs';
 
-export function urlGenerator(config: ConfigService, param: string): string | null {
+export function urlGenerator(
+  config: ConfigService,
+  param: string,
+): string | null {
   if (!param) return null;
   if (param.startsWith('http')) return param; // Agar tashqi link bo'lsa tegmaymiz
 
@@ -16,25 +25,26 @@ export function urlGenerator(config: ConfigService, param: string): string | nul
 
   let serverPath: string;
   if (imageExtensions.includes(extract)) {
-    serverPath = "image";
+    serverPath = 'image';
   } else if (videoExtensions.includes(extract)) {
-    serverPath = "video";
+    serverPath = 'video';
   } else if (archiveExtensions.includes(extract)) {
-    serverPath = "archive";
+    serverPath = 'archive';
   } else {
-    serverPath = "docs";
+    serverPath = 'docs';
   }
-  
-  const host = config.get<string>("HOST") || 'localhost';
-  const port = config.get<string>("PORT") || 3000;
-  const baseUrl = config.get<string>("APP_BASE_URL") || `http://${host}:${port}`;
+
+  const host = config.get<string>('HOST') || 'localhost';
+  const port = config.get<string>('PORT') || 3000;
+  const baseUrl =
+    config.get<string>('APP_BASE_URL') || `http://${host}:${port}`;
 
   return `${baseUrl}/api/${serverPath}/${param}`;
 }
 
 export function messageGenerator(
   typeMessage: EmailCodeEnum = EmailCodeEnum.REGISTER,
-  code: number
+  code: number,
 ): string {
   return `<h1>Your ${typeMessage} verify code 🧐🧐🧐</h1>
             <p>Code: ${code}</p>`;
@@ -45,18 +55,19 @@ export function getPathInFileType(fileName: string): string {
   let filePath: string;
 
   // process.env.UPLOAD_DIR orqali fayllarni doimiy (persistent) xotiraga yozish imkoniyati
-  const baseUploadDir = process.env.UPLOAD_DIR || join(process.cwd(), "uploads");
+  const baseUploadDir =
+    process.env.UPLOAD_DIR || join(process.cwd(), 'uploads');
 
   if (imageExtensions.includes(extract)) {
-    filePath = join(baseUploadDir, "images");
+    filePath = join(baseUploadDir, 'images');
   } else if (videoExtensions.includes(extract)) {
-    filePath = join(baseUploadDir, "videos");
+    filePath = join(baseUploadDir, 'videos');
   } else if (documentExtensions.includes(extract)) {
-    filePath = join(baseUploadDir, "docs");
+    filePath = join(baseUploadDir, 'docs');
   } else if (archiveExtensions.includes(extract)) {
-    filePath = join(baseUploadDir, "archive");
+    filePath = join(baseUploadDir, 'archive');
   } else {
-    filePath = join(baseUploadDir, "unknown");
+    filePath = join(baseUploadDir, 'unknown');
   }
 
   if (!existsSync(filePath)) {
@@ -69,7 +80,7 @@ export function getPathInFileType(fileName: string): string {
 export async function headerDataStream(
   res: Response,
   filePath: string,
-  fileName: string
+  fileName: string,
 ): Promise<void> {
   try {
     // Fayl mavjudligini tekshirish
@@ -112,7 +123,6 @@ export async function headerDataStream(
           res.status(500).json({ error: 'Internal server error' });
         }
       });
-
     } else {
       const file = createReadStream(filePath);
 
@@ -131,7 +141,6 @@ export async function headerDataStream(
         }
       });
     }
-
   } catch (error) {
     console.error('File streaming error:', error);
     if (!res.headersSent) {
@@ -140,25 +149,33 @@ export async function headerDataStream(
   }
 }
 
-
 export class ImageGenerator {
-
   private readonly width: number = 300;
   private readonly height: number = 300;
   private readonly fontSize: number = 50;
 
-  constructor(private readonly config : ConfigService){
-
-  }
+  constructor(private readonly config: ConfigService) {}
   /**
    * Random rang olish
    */
   private getRandomColor(): string {
     const colors = [
-      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
-      '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
-      '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA',
-      '#F1948A', '#85C1E9', '#D7BDE2', '#A9DFBF'
+      '#FF6B6B',
+      '#4ECDC4',
+      '#45B7D1',
+      '#96CEB4',
+      '#FFEAA7',
+      '#DDA0DD',
+      '#98D8C8',
+      '#F7DC6F',
+      '#BB8FCE',
+      '#85C1E9',
+      '#F8C471',
+      '#82E0AA',
+      '#F1948A',
+      '#85C1E9',
+      '#D7BDE2',
+      '#A9DFBF',
     ];
     return colors[Math.floor(Math.random() * colors.length)];
   }
@@ -182,7 +199,7 @@ export class ImageGenerator {
   /**
    * Avatar rasmi yaratish
    */
-  public generateAvatar(text: string,config : ConfigService): string | null {
+  public generateAvatar(text: string, config: ConfigService): string | null {
     // Faqat birinchi 2 ta harfni olish
     const initials = text.substring(0, 2).toUpperCase();
 
@@ -212,12 +229,11 @@ export class ImageGenerator {
 
     // Agar outputPath berilgan bo'lsa, faylga saqlash
     const fileName = `avatar_${initials.toLowerCase()}_${Date.now()}.png`;
-    const outputPath = getPathInFileType(fileName)
+    const outputPath = getPathInFileType(fileName);
     const fullPath = join(outputPath, fileName);
     writeFileSync(fullPath, canvas.toBuffer('image/png'));
 
     // Buffer qaytarish
-    return urlGenerator(config ,fileName);
+    return urlGenerator(config, fileName);
   }
-
 }

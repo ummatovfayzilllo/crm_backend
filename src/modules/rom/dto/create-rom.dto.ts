@@ -1,8 +1,8 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsInt, IsPositive, IsString, Min } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean, IsInt, IsPositive, IsString, Min } from 'class-validator';
 
 export class CreateRomDto {
-  @ApiProperty({ example: "Room A-101" })
+  @ApiProperty({ example: 'Room A-101' })
   @IsString()
   name: string;
 

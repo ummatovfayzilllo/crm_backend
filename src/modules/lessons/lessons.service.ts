@@ -1,13 +1,20 @@
 import { flattenLesson } from '../../common/utils/flatter_functions';
 import { ConfigService } from '@nestjs/config';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { PrismaService } from 'src/core/prisma/prisma.service';
 
 @Injectable()
 export class LessonsService {
-  constructor(private readonly prisma: PrismaService, private readonly config: ConfigService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {}
 
   async create(data: CreateLessonDto) {
     const { groupId, startDate, teacherId } = data;
@@ -23,8 +30,10 @@ export class LessonsService {
       where: { id: groupId, isDeleted: false },
       include: { course: true, rom: true },
     });
-    if (!oldGroup) throw new BadRequestException(`Group not found by id [${groupId}]`);
-    if (oldGroup.isEnd) throw new BadRequestException(`Group [${oldGroup.name}] is ended!`);
+    if (!oldGroup)
+      throw new BadRequestException(`Group not found by id [${groupId}]`);
+    if (oldGroup.isEnd)
+      throw new BadRequestException(`Group [${oldGroup.name}] is ended!`);
     if (!oldGroup.isStart) throw new BadRequestException(`Group not started!`);
 
     // === END DATE ===
@@ -73,8 +82,13 @@ export class LessonsService {
     if (!oldLesson) throw new NotFoundException('Lesson not found or deleted!');
 
     // vaqt o‘zgartirilgan bo‘lsa, bandlikni tekshiramiz
-    const startDate = data.startDate ? new Date(data.startDate) : oldLesson.startDate;
-    const endDate = new Date(new Date(startDate).getTime() + oldLesson.group.course.durationMinut * 60000);
+    const startDate = data.startDate
+      ? new Date(data.startDate)
+      : oldLesson.startDate;
+    const endDate = new Date(
+      new Date(startDate).getTime() +
+        oldLesson.group.course.durationMinut * 60000,
+    );
 
     // await this.checkRoomAvailability(oldLesson.group.romId, startDate, endDate, id);
 
@@ -93,7 +107,6 @@ export class LessonsService {
       lesson: flattenLesson(this.config, <any>updatedLesson),
     };
   }
-
 
   /**
    * FIND ALL LESSONS
@@ -171,14 +184,14 @@ export class LessonsService {
       },
     });
 
-    if (!lesson) throw new NotFoundException('Lesson not found for given startDate');
+    if (!lesson)
+      throw new NotFoundException('Lesson not found for given startDate');
 
     return {
       message: `Lesson found by startDate [${startDate}]`,
       lesson: flattenLesson(this.config, <any>lesson),
     };
   }
-
 
   /**
    * SOFT DELETE LESSON
@@ -187,7 +200,8 @@ export class LessonsService {
     const oldLesson = await this.prisma.lesson.findFirst({
       where: { id, isDeleted: false },
     });
-    if (!oldLesson) throw new NotFoundException('Lesson not found or already deleted!');
+    if (!oldLesson)
+      throw new NotFoundException('Lesson not found or already deleted!');
 
     await this.prisma.lesson.update({
       where: { id },
@@ -198,5 +212,4 @@ export class LessonsService {
       message: `Lesson [${id}] soft deleted successfully`,
     };
   }
-
 }

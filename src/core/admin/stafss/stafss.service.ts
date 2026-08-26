@@ -11,50 +11,62 @@ import { StaffsService } from 'src/modules/staffs/staffs.service';
 
 @Injectable()
 export class StafssService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly st: StaffsService,
+    private readonly config: ConfigService,
+  ) {}
 
-    constructor(
-        private readonly prisma: PrismaService,
-        private readonly st : StaffsService, private readonly config: ConfigService,
-    ) { }
+  async createStaff(data: CreateStaffDto) {
+    const existsUser = await checkExistsResurs<User>(
+      this.prisma,
+      ModelsEnumInPrisma.USERS,
+      'id',
+      data.userId,
+    );
+    if (existsUser.isDeleted)
+      throw new BadRequestException('User is Deleted !');
+    const newStaff = await this.prisma.staff.create({
+      data: {
+        userId: data.userId,
+        role: data.role,
+      },
+      include: {
+        user: {
+          select: UserFindEntitiy,
+        },
+      },
+    });
+    return {
+      message: 'This action create new staff !',
+      staff: flattenStaff(this.config, newStaff as any),
+    };
+  }
 
-    async createStaff(data: CreateStaffDto) {
-        const existsUser = await checkExistsResurs<User>(this.prisma, ModelsEnumInPrisma.USERS, "id", data.userId)
-        if (existsUser.isDeleted) throw new BadRequestException("User is Deleted !")
-        const newStaff = await this.prisma.staff.create({
-            data: {
-                userId : data.userId,
-                role : data.role
-            },
-            include  : {
-                user : {
-                    select : UserFindEntitiy
-                }
-            }
-        })
-        return {
-            message : "This action create new staff !",
-            staff : flattenStaff(this.config, newStaff as any)
-        }
-    }
-
-    async updateStaffRole(data : CreateStaffDto,staffId :string){
-        const existsUser = await checkExistsResurs<User>(this.prisma, ModelsEnumInPrisma.USERS, "id", data.userId)
-        if (existsUser.isDeleted) throw new BadRequestException("User is Deleted !")
-        const newStaff = await this.prisma.staff.update({
-            where : {id : staffId},
-            data: {
-                userId : data.userId,
-                role : data.role
-            },
-            include  : {
-                user : {
-                    select : UserFindEntitiy
-                }
-            }
-        })
-        return {
-            message : "This action create new staff !",
-            staff : newStaff
-        }
-    }
+  async updateStaffRole(data: CreateStaffDto, staffId: string) {
+    const existsUser = await checkExistsResurs<User>(
+      this.prisma,
+      ModelsEnumInPrisma.USERS,
+      'id',
+      data.userId,
+    );
+    if (existsUser.isDeleted)
+      throw new BadRequestException('User is Deleted !');
+    const newStaff = await this.prisma.staff.update({
+      where: { id: staffId },
+      data: {
+        userId: data.userId,
+        role: data.role,
+      },
+      include: {
+        user: {
+          select: UserFindEntitiy,
+        },
+      },
+    });
+    return {
+      message: 'This action create new staff !',
+      staff: newStaff,
+    };
+  }
 }

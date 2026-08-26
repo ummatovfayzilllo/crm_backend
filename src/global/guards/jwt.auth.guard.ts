@@ -40,8 +40,8 @@ export class JwtAuthGuard implements CanActivate {
 
     // 1. Path bo'yicha qaysi tokenni kutayotganimizni aniqlaymiz
     const isResetPath = req.url.includes('reset');
-    const expectedTokenType = isResetPath 
-      ? jwtTokenTypeEnum.SESSION 
+    const expectedTokenType = isResetPath
+      ? jwtTokenTypeEnum.SESSION
       : jwtTokenTypeEnum.ACCESS;
 
     // 2. Tokenni olish
@@ -49,8 +49,8 @@ export class JwtAuthGuard implements CanActivate {
       token = authHeader.split(' ')[1];
     } else {
       // Cookie'dan ham pathga mos tokenni olamiz
-      token = isResetPath 
-        ? req.cookies?.sessionToken 
+      token = isResetPath
+        ? req.cookies?.sessionToken
         : req.cookies?.accessToken;
     }
 

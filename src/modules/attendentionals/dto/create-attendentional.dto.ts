@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
   IsBoolean,
@@ -6,8 +6,8 @@ import {
   IsOptional,
   IsString,
   ValidateNested,
-} from 'class-validator'
-import { Type } from 'class-transformer'
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 class AttendanceItemDto {
   @ApiProperty({
@@ -15,7 +15,7 @@ class AttendanceItemDto {
     description: 'Student (staff) ID who attended the lesson',
   })
   @IsString()
-  studentId: string
+  studentId: string;
 
   @ApiProperty({
     example: '2025-10-21T20:08:34.806Z',
@@ -24,7 +24,7 @@ class AttendanceItemDto {
   })
   @IsOptional()
   @IsDateString()
-  kelganVaqti?: string
+  kelganVaqti?: string;
 
   @ApiProperty({
     example: true,
@@ -33,7 +33,7 @@ class AttendanceItemDto {
   })
   @IsOptional()
   @IsBoolean()
-  kelgan?: boolean
+  kelgan?: boolean;
 
   @ApiProperty({
     example: false,
@@ -42,7 +42,7 @@ class AttendanceItemDto {
   })
   @IsOptional()
   @IsBoolean()
-  isDeleted?: boolean
+  isDeleted?: boolean;
 }
 
 export class AttendanceDto {
@@ -51,14 +51,14 @@ export class AttendanceDto {
     description: 'Student (staff) ID who attended the lesson',
   })
   @IsString()
-  studentIds: string[]
+  studentIds: string[];
 
   @ApiProperty({
     example: '6d8ffbd5-5a81-4627-824a-a11ada76de0c',
     description: 'Lesson ID to which this attendance belongs',
   })
   @IsString()
-  lessonId: string
+  lessonId: string;
 }
 
 export class CreateAttendentionalDto {
@@ -67,7 +67,7 @@ export class CreateAttendentionalDto {
     description: 'Lesson ID to which this attendance belongs',
   })
   @IsString()
-  lessonId: string
+  lessonId: string;
 
   @ApiProperty({
     type: [AttendanceItemDto],
@@ -76,7 +76,5 @@ export class CreateAttendentionalDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => AttendanceItemDto)
-  attendances: AttendanceItemDto[]
+  attendances: AttendanceItemDto[];
 }
-
-

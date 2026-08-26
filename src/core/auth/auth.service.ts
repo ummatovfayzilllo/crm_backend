@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CacheService } from './cache.service';
 import { EmailService as MailService } from '../email/email.service';
@@ -31,14 +35,17 @@ export class AuthService {
     if (action === EmailCodeEnum.REGISTER) {
       this.cache.set(email, { code, email }, 180000);
     } else if (action === EmailCodeEnum.RESET_PASSWORD) {
-      const user = await this.prisma.user.findFirst({ where: { email: String(email) } });
-      if (!user || user.isDeleted) throw new NotFoundException("Foydalanuvchi topilmadi");
+      const user = await this.prisma.user.findFirst({
+        where: { email: String(email) },
+      });
+      if (!user || user.isDeleted)
+        throw new NotFoundException('Foydalanuvchi topilmadi');
       this.cache.set(email, { code, email }, 180000);
       sessionToken = await this.jwtService.getSessionToken(user.id, user.email);
     }
-    
+
     await this.mail.sendResedPasswordVerify(email, code, action);
-    return { message: "OTP code sent to email", sessionToken };
+    return { message: 'OTP code sent to email', sessionToken };
   }
 
   async register(data: AuthRegisterDto) {
@@ -48,9 +55,14 @@ export class AuthService {
       throw new BadRequestException("Noto'g'ri yoki eskirgan OTP kod");
     }
 
-    await checAlreadykExistsResurs(this.prisma, ModelsEnumInPrisma.USERS, "email", email);
+    await checAlreadykExistsResurs(
+      this.prisma,
+      ModelsEnumInPrisma.USERS,
+      'email',
+      email,
+    );
     const passwordHash = await bcrypt.hash(password, 10);
-    
+
     const newUser = await this.prisma.user.create({
       data: {
         email,
@@ -60,49 +72,66 @@ export class AuthService {
         phone,
         birthDay: new Date(),
         Staff: {
-          create: { role: 'STUDENT' }
-        }
+          create: { role: 'STUDENT' },
+        },
       },
-      include: { Staff: true }
+      include: { Staff: true },
     });
-    
+
     this.cache.delete(email);
-    const tokens = { accessToken: await this.jwtService.getAccessToken(newUser.id), refreshToken: await this.jwtService.getRefreshToken(newUser.id) };
-    
+    const tokens = {
+      accessToken: await this.jwtService.getAccessToken(newUser.id, 'STUDENT'),
+      refreshToken: await this.jwtService.getRefreshToken(newUser.id),
+    };
+
     return { user: flattenAuthUser(this.config, newUser as any), tokens };
   }
 
   async login(data: LoginDto) {
     const user = await this.prisma.user.findFirst({
-      where: { email: String(data.email) },
-      include: { Staff: true }
+      where: { email: String(data.email), isDeleted: false },
+      include: { Staff: true },
     });
-    if (!user || user.isDeleted) throw new BadRequestException("Email yoki parol xato");
-    
+    if (!user || user.isDeleted)
+      throw new BadRequestException('Email yoki parol xato');
+
     const isMatch = await bcrypt.compare(data.password, user.password);
-    if (!isMatch) throw new BadRequestException("Email yoki parol xato");
-    
-    const tokens = { accessToken: await this.jwtService.getAccessToken(user.id), refreshToken: await this.jwtService.getRefreshToken(user.id) };
+    if (!isMatch) throw new BadRequestException('Email yoki parol xato');
+
+    const tokens = {
+      accessToken: await this.jwtService.getAccessToken(
+        user.id,
+        user.Staff && user.Staff.length > 0 ? user.Staff[0].role : 'STUDENT',
+      ),
+      refreshToken: await this.jwtService.getRefreshToken(user.id),
+    };
     return { user: flattenAuthUser(this.config, user as any), tokens };
   }
 
-  async verifyResetToken(data: { email: string, code: number, newPassword: string }) {
+  async verifyResetToken(data: {
+    email: string;
+    code: number;
+    newPassword: string;
+  }) {
     const { email, code, newPassword } = data;
     const cacheData = this.cache.get(email);
     if (!cacheData || cacheData.code !== code) {
       throw new BadRequestException("Noto'g'ri yoki eskirgan OTP kod");
     }
-    
-    const user = await this.prisma.user.findFirst({ where: { email: String(email) } });
-    if (!user || user.isDeleted) throw new NotFoundException("Foydalanuvchi topilmadi");
-    
+
+    const user = await this.prisma.user.findFirst({
+      where: { email: String(email) },
+    });
+    if (!user || user.isDeleted)
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+
     const passwordHash = await bcrypt.hash(newPassword, 10);
     await this.prisma.user.update({
       where: { id: user.id },
-      data: { password: passwordHash }
+      data: { password: passwordHash },
     });
-    
+
     this.cache.delete(email);
-    return { message: "Parol muvaffaqiyatli yangilandi" };
+    return { message: 'Parol muvaffaqiyatli yangilandi' };
   }
 }

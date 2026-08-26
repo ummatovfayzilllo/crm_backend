@@ -1,7 +1,15 @@
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/global/guards/jwt.auth.guard';
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { LessonsService } from './lessons.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
@@ -12,12 +20,12 @@ import { UpdateLessonDto } from './dto/update-lesson.dto';
 export class LessonsController {
   constructor(private readonly lessonsService: LessonsService) {}
 
-  @Post("create")
+  @Post('create')
   create(@Body() createLessonDto: CreateLessonDto) {
     return this.lessonsService.create(createLessonDto);
   }
 
-  @Get("get-all")
+  @Get('get-all')
   findAll() {
     return this.lessonsService.findAll();
   }
@@ -27,9 +35,9 @@ export class LessonsController {
     return this.lessonsService.findOneByLessonId(id);
   }
 
-  @Get("get-all/by-groupid/:id")
-  getAll_ByGroupId(@Param("id") groupId : string){
-    return this.lessonsService.getAll_Lesson_byGroupId(groupId)
+  @Get('get-all/by-groupid/:id')
+  getAll_ByGroupId(@Param('id') groupId: string) {
+    return this.lessonsService.getAll_Lesson_byGroupId(groupId);
   }
 
   @Patch('update-one/by-lessonid/:id')

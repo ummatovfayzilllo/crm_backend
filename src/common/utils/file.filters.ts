@@ -1,41 +1,115 @@
-import { extname } from "path";
-import { urlGenerator } from "./generators";
-import { ConfigService } from "@nestjs/config";
+import { extname } from 'path';
+import { urlGenerator } from './generators';
+import { ConfigService } from '@nestjs/config';
 
 /* =========================
  *  FILE EXTENSIONS
  * ========================= */
 
 export const imageExtensions = [
-  '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg',
-  '.tiff', '.ico', '.jfif', '.pjpeg', '.pjp', '.avif'
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.bmp',
+  '.webp',
+  '.svg',
+  '.tiff',
+  '.ico',
+  '.jfif',
+  '.pjpeg',
+  '.pjp',
+  '.avif',
 ];
 
 export const videoExtensions = [
-  '.mp4', '.avi', '.mov', '.mkv', '.flv', '.wmv', '.webm',
-  '.mpeg', '.mpg', '.3gp', '.3g2', '.mts', '.m2ts', '.vob',
-  '.ogv', '.ts', '.m4v'
+  '.mp4',
+  '.avi',
+  '.mov',
+  '.mkv',
+  '.flv',
+  '.wmv',
+  '.webm',
+  '.mpeg',
+  '.mpg',
+  '.3gp',
+  '.3g2',
+  '.mts',
+  '.m2ts',
+  '.vob',
+  '.ogv',
+  '.ts',
+  '.m4v',
 ];
 
 export const audioExtensions = [
-  '.mp3', '.wav', '.aac', '.ogg', '.flac', '.m4a', '.amr', '.aiff', '.wma'
+  '.mp3',
+  '.wav',
+  '.aac',
+  '.ogg',
+  '.flac',
+  '.m4a',
+  '.amr',
+  '.aiff',
+  '.wma',
 ];
 
 export const documentExtensions = [
-  '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf',
-  '.odt', '.ods', '.odp', '.md', '.csv', '.json', '.xml', '.yml', '.yaml',
-  '.epub', '.js', '.ts', '.html', '.css', '.c', '.cpp', '.h', '.hpp', '.py',
-  '.java', '.cs', '.go', '.rb', '.php', '.swift', '.rs'
+  '.pdf',
+  '.doc',
+  '.docx',
+  '.xls',
+  '.xlsx',
+  '.ppt',
+  '.pptx',
+  '.txt',
+  '.rtf',
+  '.odt',
+  '.ods',
+  '.odp',
+  '.md',
+  '.csv',
+  '.json',
+  '.xml',
+  '.yml',
+  '.yaml',
+  '.epub',
+  '.js',
+  '.ts',
+  '.html',
+  '.css',
+  '.c',
+  '.cpp',
+  '.h',
+  '.hpp',
+  '.py',
+  '.java',
+  '.cs',
+  '.go',
+  '.rb',
+  '.php',
+  '.swift',
+  '.rs',
 ];
 
 export const archiveExtensions = [
-  '.zip', '.rar', '.7z', '.tar', '.gz', '.bz2', '.xz', '.iso', '.cab',
-  '.lz', '.lzma', '.z', '.tgz', '.txz'
+  '.zip',
+  '.rar',
+  '.7z',
+  '.tar',
+  '.gz',
+  '.bz2',
+  '.xz',
+  '.iso',
+  '.cab',
+  '.lz',
+  '.lzma',
+  '.z',
+  '.tgz',
+  '.txz',
 ];
 
-export const stickerExtensions = [
-  '.webp', '.tgs', '.gif'
-];
+export const stickerExtensions = ['.webp', '.tgs', '.gif'];
 
 /* =========================
  *  MIME TYPE LIST
@@ -76,11 +150,20 @@ export const mimeTypes: [string, string][] = [
   // === Documents ===
   ['.pdf', 'application/pdf'],
   ['.doc', 'application/msword'],
-  ['.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  [
+    '.docx',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ],
   ['.xls', 'application/vnd.ms-excel'],
-  ['.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+  [
+    '.xlsx',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ],
   ['.ppt', 'application/vnd.ms-powerpoint'],
-  ['.pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'],
+  [
+    '.pptx',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  ],
   ['.txt', 'text/plain'],
   ['.md', 'text/markdown'],
   ['.csv', 'text/csv'],
@@ -117,7 +200,7 @@ export const mimeTypes: [string, string][] = [
   // === Stickers ===
   ['.webp', 'image/webp'],
   ['.tgs', 'application/x-tgs'],
-  ['.gif', 'image/gif']
+  ['.gif', 'image/gif'],
 ];
 
 /* =========================

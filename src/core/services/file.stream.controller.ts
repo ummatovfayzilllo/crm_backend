@@ -14,52 +14,37 @@ import { Public } from 'src/global/decorators/auth.decorators';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileStorages } from 'src/common/config/multer.config';
 
-
 @Public()
 @Controller()
 export class FileStreamerController {
-
-  constructor(
-    private readonly fileService: FileStreamService
-  ) { }
+  constructor(private readonly fileService: FileStreamService) {}
 
   @Get('video/:file')
-  async streamVideo(
-    @Param('file') fileName: string,
-    @Res() res: Response
-  ) {
-    return this.fileService.fileStream(res, fileName)
+  async streamVideo(@Param('file') fileName: string, @Res() res: Response) {
+    return this.fileService.fileStream(res, fileName);
   }
 
-  @UseInterceptors(FileInterceptor("avatar",fileStorages(["image"])))
-  @Post("avatar")
-  writeAvatar(
-    @UploadedFile() file : Express.Multer.File
-  ){
-    return this.fileService.writeFileSerrvice(file.filename)
+  @UseInterceptors(FileInterceptor('avatar', fileStorages(['image'])))
+  @Post('avatar')
+  writeAvatar(@UploadedFile() file: Express.Multer.File) {
+    return this.fileService.writeFileSerrvice(file.filename);
   }
 
   @Get('archive/:file')
   async streamArchie(
     @Param('fileName') fileName: string,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
-    return this.fileService.fileStream(res, fileName)
+    return this.fileService.fileStream(res, fileName);
   }
-  
+
   @Get('image/:file')
-  async streamImage(
-    @Param('file') fileName: string,
-    @Res() res: Response
-  ) {
-    return this.fileService.fileStream(res, fileName)
+  async streamImage(@Param('file') fileName: string, @Res() res: Response) {
+    return this.fileService.fileStream(res, fileName);
   }
-  
+
   @Get('docs/:file')
-  async streamDocs(
-    @Param('file') fileName: string,
-    @Res() res: Response
-  ) {
-    return this.fileService.fileStream(res, fileName)
+  async streamDocs(@Param('file') fileName: string, @Res() res: Response) {
+    return this.fileService.fileStream(res, fileName);
   }
 }

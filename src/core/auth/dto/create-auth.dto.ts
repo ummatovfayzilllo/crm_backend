@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsEnum,
@@ -7,25 +7,29 @@ import {
   IsString,
   IsDateString,
   MinLength,
-} from "class-validator";
+} from 'class-validator';
 
 enum RoleStafs {
-  ADMIN = "ADMIN",
-  TEACHER = "TEACHER",
-  ASISTANT = "ASISTANT",
-  STUDENT = "STUDENT",
+  ADMIN = 'ADMIN',
+  TEACHER = 'TEACHER',
+  ASISTANT = 'ASISTANT',
+  STUDENT = 'STUDENT',
 }
 
 export class AuthRegisterDto {
-  @ApiProperty({ example: "STUDENT", enum: RoleStafs, default: RoleStafs.STUDENT })
+  @ApiProperty({
+    example: 'STUDENT',
+    enum: RoleStafs,
+    default: RoleStafs.STUDENT,
+  })
   @IsEnum(RoleStafs)
   role: RoleStafs = RoleStafs.STUDENT;
 
-  @ApiProperty({ example: "Ali" })
+  @ApiProperty({ example: 'Ali' })
   @IsString()
   firstName: string;
 
-  @ApiProperty({ example: "Valiyev" })
+  @ApiProperty({ example: 'Valiyev' })
   @IsString()
   lastName: string;
 
@@ -34,26 +38,26 @@ export class AuthRegisterDto {
   @IsString()
   father?: string;
 
-  @ApiProperty({ example: "ali@example.com" })
+  @ApiProperty({ example: 'ali@example.com' })
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: "2000-05-20T00:00:00.000Z" })
+  @ApiProperty({ example: '2000-05-20T00:00:00.000Z' })
   @IsDateString()
   birthDay: Date;
 
-  @ApiProperty({ example: "https://example.com/image.jpg" })
+  @ApiProperty({ example: 'https://example.com/image.jpg' })
   @IsString()
   image: string;
 
-  @ApiProperty({ example: "+998901234567", required: false })
+  @ApiProperty({ example: '+998901234567', required: false })
   @IsOptional()
-  @IsPhoneNumber("UZ")
+  @IsPhoneNumber('UZ')
   phone?: string;
 
-  @ApiProperty({ example: "StrongP@ssw0rd" })
+  @ApiProperty({ example: 'StrongP@ssw0rd' })
   @IsString()
-  @MinLength(6, { message: "Password must be at least 6 characters long" })
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
 
   @ApiProperty({ example: 123456 })

@@ -1,5 +1,10 @@
+import { BadRequestException } from "@nestjs/common";
 import { flattenUser } from '../../common/utils/flatter_functions';
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/core/prisma/prisma.service';
@@ -18,29 +23,36 @@ export class UsersService {
     private readonly config: ConfigService,
   ) {}
 
-    /** 🔸 Create user */
-  async create(data: CreateUserDto, image?: Express.Multer.File) {
+  /** 🔸 Create user */
+  async create(data: CreateUserDto) {
     const { email, phone } = data;
-    const existsInEmail = await this.prisma.user.findFirst({ where: { email } });
-    const existsInPhone = await this.prisma.user.findFirst({ where: { phone } });
+    const existsInEmail = await this.prisma.user.findFirst({
+      where: { email, isDeleted: false },
+    });
+    const existsInPhone = await this.prisma.user.findFirst({
+      where: { phone, isDeleted: false },
+    });
 
     if (existsInPhone || existsInEmail)
-      return { message: 'Already exists', user: flattenUser(this.config, <any>(existsInPhone || existsInEmail)) };
+      return {
+        message: 'Already exists',
+        user: flattenUser(this.config, <any>(existsInPhone || existsInEmail)),
+      };
 
     const hashedPass = await bcrypt.hash(data.password, 10);
     const newUser = await this.prisma.user.create({
       data: {
         ...data,
         father: data.father || '',
-        image: image ? urlGenerator(this.config, image.filename) : null,
+        image: data.image || null,
         password: hashedPass,
         isDeleted: false,
       },
       include: { Staff: true },
     });
 
-    const {Staff} = newUser
-    
+    const { Staff } = newUser;
+
     return { message: 'User created', user: flattenUser(this.config, newUser) };
   }
 
@@ -70,6 +82,16 @@ export class UsersService {
   }
 
   /** 🔸 Update user */
+  async updateAvatar(id: string, image: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user || user.isDeleted) throw new BadRequestException("Foydalanuvchi topilmadi");
+    await this.prisma.user.update({
+      where: { id },
+      data: { image }
+    });
+    return { message: "Avatar muvaffaqiyatli yangilandi" };
+  }
+
   async update(id: string, data: UpdateUserDto) {
     const oldUser = await checkExistsResurs<User>(
       this.prisma,
@@ -78,16 +100,21 @@ export class UsersService {
       id,
     );
 
-    if (oldUser.isDeleted) throw new NotFoundException(`User not found [${id}]`);
+    if (oldUser.isDeleted)
+      throw new NotFoundException(`User not found [${id}]`);
 
     if (data.email) {
-      const existsEmail = await this.prisma.user.findFirst({ where: { email: data.email } });
+      const existsEmail = await this.prisma.user.findFirst({
+        where: { email: data.email },
+      });
       if (existsEmail && existsEmail.id !== id)
         throw new ConflictException('Email already exists');
     }
 
     if (data.phone) {
-      const existsPhone = await this.prisma.user.findFirst({ where: { phone: data.phone } });
+      const existsPhone = await this.prisma.user.findFirst({
+        where: { phone: data.phone },
+      });
       if (existsPhone && existsPhone.id !== id)
         throw new ConflictException('Phone already exists');
     }
@@ -98,7 +125,10 @@ export class UsersService {
       include: { Staff: true },
     });
 
-    return { message: 'User updated', user: flattenUser(this.config, updatedUser) };
+    return {
+      message: 'User updated',
+      user: flattenUser(this.config, updatedUser),
+    };
   }
 
   /** 🔸 Soft delete user */
@@ -110,7 +140,8 @@ export class UsersService {
       id,
     );
 
-    if (oldUser.isDeleted) throw new NotFoundException(`User not found [${id}]`);
+    if (oldUser.isDeleted)
+      throw new NotFoundException(`User not found [${id}]`);
 
     if (oldUser.image && typeof oldUser.image === 'string') {
       const filename = oldUser.image.split('/').at(-1);
@@ -123,7 +154,10 @@ export class UsersService {
       include: { Staff: true },
     });
 
-    return { message: 'User soft-deleted', user: flattenUser(this.config, deleted) };
+    return {
+      message: 'User soft-deleted',
+      user: flattenUser(this.config, deleted),
+    };
   }
 
   /** 🔸 Restore deleted user */
@@ -132,7 +166,8 @@ export class UsersService {
       where: { id, isDeleted: true },
       include: { Staff: true },
     });
-    if (!deletedUser) throw new NotFoundException(`Deleted user not found [${id}]`);
+    if (!deletedUser)
+      throw new NotFoundException(`Deleted user not found [${id}]`);
 
     const restored = await this.prisma.user.update({
       where: { id },
@@ -140,6 +175,9 @@ export class UsersService {
       include: { Staff: true },
     });
 
-    return { message: 'User restored', user: flattenUser(this.config, restored) };
+    return {
+      message: 'User restored',
+      user: flattenUser(this.config, restored),
+    };
   }
 }

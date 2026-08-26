@@ -11,7 +11,7 @@ import { StaffsService } from 'src/modules/staffs/staffs.service';
 
 @Module({
   controllers: [AdminController],
-  providers : [
+  providers: [
     PermissionsService,
     RolesService,
     UsersService,
@@ -19,7 +19,7 @@ import { StaffsService } from 'src/modules/staffs/staffs.service';
     RomService,
     AdminService,
     StafssService,
-    StaffsService
-  ]
+    StaffsService,
+  ],
 })
 export class AdminModule {}

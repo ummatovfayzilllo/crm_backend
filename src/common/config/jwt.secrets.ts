@@ -2,9 +2,10 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 
 // alias type
-export type jwtTokenType = 'ACCESS' | 'REFRESH' | "SESSION";
+export type jwtTokenType = 'ACCESS' | 'REFRESH' | 'SESSION';
 
 export interface JwtPayload {
+  role?: string;
   userId: string;
   email: string; // bo'sh bo'lsa "" keladi
   token_type?: jwtTokenType; // Guard orqali biriktiriladi
@@ -19,7 +20,7 @@ export interface JwtVerfyPayload {
 export const enum jwtTokenTypeEnum {
   ACCESS = 'ACCESS',
   REFRESH = 'REFRESH',
-  SESSION = "SESSION"
+  SESSION = 'SESSION',
 }
 
 //  secret and  ecpiresin

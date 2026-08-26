@@ -15,26 +15,21 @@ import { CreateStaffDto } from './stafss/dto/create-staff.dto';
 @UserRole(UserRoles.ADMIN)
 @Controller('admin')
 export class AdminController {
-    constructor(
-        private readonly adminService : AdminService
-    ){}
+  constructor(private readonly adminService: AdminService) {}
 
-    @Post("create-role")
-    createRole(@Body() data : CreateStaffDto){
-        console.log(data)
-        return this.adminService.createStaff(data)
-    }
+  @Post('create-role')
+  createRole(@Body() data: CreateStaffDto) {
+    console.log(data);
+    return this.adminService.createStaff(data);
+  }
 
-    @Post("update-role/:userId")
-    updateRole(
-        @Body() data : CreateStaffDto,
-        @Param("userId") userId : string
-    ){
-        return this.adminService.updateRole(data,userId)
-    }
+  @Post('update-role/:userId')
+  updateRole(@Body() data: CreateStaffDto, @Param('userId') userId: string) {
+    return this.adminService.updateRole(data, userId);
+  }
 
-    @Post("published-course/:id")
-    updatePublish(@Body() data : UpdateCourseDto,@Param("id") courseId : string){
-        return this.adminService.updatePublishCourse(data,courseId)
-    }
+  @Post('published-course/:id')
+  updatePublish(@Body() data: UpdateCourseDto, @Param('id') courseId: string) {
+    return this.adminService.updatePublishCourse(data, courseId);
+  }
 }

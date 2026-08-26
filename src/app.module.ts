@@ -13,15 +13,15 @@ import { StaffsModule } from './modules/staffs/staffs.module';
 
 @Module({
   imports: [
-    CoreModule, 
-    RomModule, 
-    CoursesModule, 
+    CoreModule,
+    RomModule,
+    CoursesModule,
     GroupesModule,
     UsersModule,
     StudentGroupsModule,
     LessonsModule,
     AttendentionalsModule,
-    StaffsModule
+    StaffsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

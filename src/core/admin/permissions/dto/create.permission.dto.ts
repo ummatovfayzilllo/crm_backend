@@ -1,3 +1,1 @@
-export class CreatePermissionDto {
-    
-}
+export class CreatePermissionDto {}

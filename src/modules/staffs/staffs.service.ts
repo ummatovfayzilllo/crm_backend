@@ -1,13 +1,21 @@
 import { ConfigService } from '@nestjs/config';
-import { flattenStaff, flattenStudent, flattenTeacher, flattenUser } from '../../common/utils/flatter_functions';
+import {
+  flattenStaff,
+  flattenStudent,
+  flattenTeacher,
+  flattenUser,
+} from '../../common/utils/flatter_functions';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/core/prisma/prisma.service';
 
 @Injectable()
 export class StaffsService {
-  constructor(private readonly prisma: PrismaService, private readonly config: ConfigService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {}
 
-    /** 🔸 Get teacher by Group ID */
+  /** 🔸 Get teacher by Group ID */
   async getAll_Teacher_ByGrouoId(groupId: string) {
     const group = await this.prisma.group.findFirst({
       where: { id: groupId },
@@ -16,36 +24,39 @@ export class StaffsService {
       },
     });
 
-    if (!group || !group.teacher || group.teacher.isDeleted || group.teacher.user.isDeleted) {
+    if (
+      !group ||
+      !group.teacher ||
+      group.teacher.isDeleted ||
+      group.teacher.user.isDeleted
+    ) {
       throw new NotFoundException('Teacher not found or deleted!');
     }
 
     return flattenTeacher(this.config, group.teacher);
   }
   async getAll_Teachers() {
-
     const staffs = await this.prisma.staff.findMany({
       include: {
-        user: true
-      }
-    })
-    const teachers = staffs.filter(teacher => teacher.role === "TEACHER")
+        user: true,
+      },
+    });
+    const teachers = staffs.filter((teacher) => teacher.role === 'TEACHER');
 
     return {
-      teachers: teachers.map(teacher => flattenStaff(this.config, teacher))
+      teachers: teachers.map((teacher) => flattenStaff(this.config, teacher)),
     };
   }
 
   async getAll_Students() {
-
     const staffs = await this.prisma.staff.findMany({
       include: {
-        user: true
-      }
-    })
-    const teachers = staffs.filter(teacher => teacher.role === "STUDENT")
+        user: true,
+      },
+    });
+    const teachers = staffs.filter((teacher) => teacher.role === 'STUDENT');
     return {
-      students: teachers.map(teacher => flattenStaff(this.config, teacher))
+      students: teachers.map((teacher) => flattenStaff(this.config, teacher)),
     };
   }
   /** 🔸 Get all teachers by Course ID */
@@ -66,7 +77,9 @@ export class StaffsService {
     if (!course) throw new NotFoundException('Course not found!');
 
     const teachers = course.groupes
-      .filter((g) => g.teacher && !g.teacher.isDeleted && !g.teacher.user.isDeleted)
+      .filter(
+        (g) => g.teacher && !g.teacher.isDeleted && !g.teacher.user.isDeleted,
+      )
       .map((g) => flattenTeacher(this.config, g.teacher))
       .filter(Boolean);
 
@@ -98,9 +111,11 @@ export class StaffsService {
       },
     });
 
-
     const students = studentGroups
-      .filter((sg) => sg.student && !sg.student.isDeleted && !sg.student.user.isDeleted)
+      .filter(
+        (sg) =>
+          sg.student && !sg.student.isDeleted && !sg.student.user.isDeleted,
+      )
       .map((sg) => flattenStudent(this.config, sg.student))
       .filter(Boolean);
     return {
@@ -131,8 +146,11 @@ export class StaffsService {
     const students = course.groupes
       .flatMap((g) =>
         g.students
-          .filter((sg) => sg.student && !sg.student.isDeleted && !sg.student.user.isDeleted)
-          .map((sg) => flattenStudent(this.config, sg.student))
+          .filter(
+            (sg) =>
+              sg.student && !sg.student.isDeleted && !sg.student.user.isDeleted,
+          )
+          .map((sg) => flattenStudent(this.config, sg.student)),
       )
       .filter(Boolean);
 

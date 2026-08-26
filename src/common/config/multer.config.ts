@@ -1,4 +1,3 @@
-
 import { diskStorage } from 'multer';
 import { existsSync, mkdirSync } from 'fs';
 import { extname, join } from 'path';
@@ -9,12 +8,12 @@ import { Request } from 'express';
 export const courseFileFields = [
   { name: 'banner', maxCount: 1 },
   { name: 'introVideo', maxCount: 1 },
-]
+];
 
 export const fileStorages = (allowedMimes: string[]) => ({
   storage: diskStorage({
     destination: (req, file, cb) => {
-      console.log("File Storage file ", file)
+      console.log('File Storage file ', file);
       const filePath = getPathInFileType(file.originalname);
       cb(null, filePath);
     },
@@ -27,12 +26,12 @@ export const fileStorages = (allowedMimes: string[]) => ({
 });
 
 function fileFilters(allowedMimes: string[]) {
-  return (req : Request, file : Express.Multer.File, cb) => {
+  return (req: Request, file: Express.Multer.File, cb) => {
     const mime = file.mimetype.split('/')[0];
     if (!allowedMimes.includes(mime) && allowedMimes.length !== 0) {
       cb(
         new UnsupportedMediaTypeException(
-          `Fayl turi [${allowedMimes.join(', ')}] bo'lishi kerak`
+          `Fayl turi [${allowedMimes.join(', ')}] bo'lishi kerak`,
         ),
         false,
       );
@@ -41,4 +40,3 @@ function fileFilters(allowedMimes: string[]) {
     }
   };
 }
-

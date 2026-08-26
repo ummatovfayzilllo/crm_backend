@@ -1,65 +1,74 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateStudentGroupDto } from './dto/create-student-group.dto';
 import { PrismaService } from 'src/core/prisma/prisma.service';
 
-
 @Injectable()
 export class StudentGroupsService {
-
-  constructor(
-    private readonly prisma: PrismaService
-  ) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async check_Student_And_Group(studentId: string, groupId: string) {
     const existsStudent = await this.prisma.staff.findFirst({
       where: { id: studentId },
-      include: { user: true }
-    })
+      include: { user: true },
+    });
 
     if (!existsStudent) {
-      throw new NotFoundException(`Student not found by id [${studentId}]`)
+      throw new NotFoundException(`Student not found by id [${studentId}]`);
     }
-    const existsGroup = await this.prisma.group.findFirst({ where: { id: groupId } })
+    const existsGroup = await this.prisma.group.findFirst({
+      where: { id: groupId },
+    });
 
-    if (existsStudent.user.isDeleted) throw new BadRequestException("Student isDeleted !")
-    if (existsStudent.role !== "STUDENT") throw new BadRequestException(`Role must be student !`)
+    if (existsStudent.user.isDeleted)
+      throw new BadRequestException('Student isDeleted !');
+    if (existsStudent.role !== 'STUDENT')
+      throw new BadRequestException(`Role must be student !`);
 
+    if (!existsGroup)
+      throw new NotFoundException(`Group not found by id [${groupId}] !`);
+    if (existsGroup?.isEnd) throw new BadRequestException(`Group in ended !`);
 
-    if (!existsGroup) throw new NotFoundException(`Group not found by id [${groupId}] !`)
-    if (existsGroup?.isEnd) throw new BadRequestException(`Group in ended !`)
-
-    if ((await this.prisma.studentGroup.findFirst({ where: { studentId: studentId, groupId: groupId } }))) {
-      throw new BadRequestException(`Student  already registired in group [${existsGroup.name}] `)
+    if (
+      await this.prisma.studentGroup.findFirst({
+        where: { studentId: studentId, groupId: groupId },
+      })
+    ) {
+      throw new BadRequestException(
+        `Student  already registired in group [${existsGroup.name}] `,
+      );
     }
   }
 
   async create(data: CreateStudentGroupDto) {
-
-    await this.check_Student_And_Group(data.studentId, data.groupId)
+    await this.check_Student_And_Group(data.studentId, data.groupId);
 
     const newStudentGroup = await this.prisma.studentGroup.create({
       data: {
         studentId: data.studentId,
-        groupId: data.groupId
+        groupId: data.groupId,
       },
       include: {
         student: {
           include: {
-            user: true
-          }
-        }
-      }
-    })
+            user: true,
+          },
+        },
+      },
+    });
 
     return {
       message: 'This action adds a new studentGroup',
-      studentGroup: newStudentGroup
+      studentGroup: newStudentGroup,
     };
   }
 
-  async getAllStatistika(roomId : string) {
+  async getAllStatistika(roomId: string) {
     const res = await this.prisma.studentGroup.findMany({
-      where : {group : {romId : roomId}},
+      where: { group: { romId: roomId } },
       include: {
         student: {
           include: {
@@ -82,11 +91,7 @@ export class StudentGroupsService {
     });
 
     return res.map((s) => {
-      const {
-        id,
-        student,
-        group,
-      } = s;
+      const { id, student, group } = s;
 
       const { user: studentUser } = student;
       const {
@@ -161,11 +166,12 @@ export class StudentGroupsService {
     });
   }
 
-
   async getidsbyStudenId(studentId: string) {
-    return (await this.prisma.studentGroup.findMany({
-      where: { studentId: studentId },
-      select: { groupId: true }
-    })).map(res => res.groupId)
+    return (
+      await this.prisma.studentGroup.findMany({
+        where: { studentId: studentId },
+        select: { groupId: true },
+      })
+    ).map((res) => res.groupId);
   }
 }

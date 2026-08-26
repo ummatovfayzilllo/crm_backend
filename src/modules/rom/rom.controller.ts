@@ -1,7 +1,16 @@
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/global/guards/jwt.auth.guard';
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+} from '@nestjs/common';
 import { RomService } from './rom.service';
 import { CreateRomDto } from './dto/create-rom.dto';
 import { UpdateRomDto } from './dto/update-rom.dto';
@@ -10,14 +19,14 @@ import { UpdateRomDto } from './dto/update-rom.dto';
 @UseGuards(JwtAuthGuard)
 @Controller('rooms')
 export class RomController {
-  constructor(private readonly romService: RomService) { }
+  constructor(private readonly romService: RomService) {}
 
-  @Post("create")
+  @Post('create')
   create(@Body() dto: CreateRomDto) {
     return this.romService.create(dto);
   }
 
-  @Get("get-all")
+  @Get('get-all')
   findAll() {
     return this.romService.findAll();
   }
@@ -32,9 +41,9 @@ export class RomController {
     return this.romService.update(id, dto);
   }
 
-  @Get("get-all/statistika/romms")
-  getStatistika(){
-    return this.romService.getLidsStats()
+  @Get('get-all/statistika/romms')
+  getStatistika() {
+    return this.romService.getLidsStats();
   }
 
   @Delete('remove-one/:id')

@@ -7,7 +7,7 @@ import {
   IS_PUBLIC_KEY,
   MODEL_NAME,
   ROLE_NAME,
-  Models
+  Models,
 } from 'src/common/types/auth.types';
 import { UserRoles } from 'src/common/types/user.types';
 

@@ -15,9 +15,7 @@ import { JwtAuthGuard } from 'src/global/guards/jwt.auth.guard';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [
-        ".env",
-      ]
+      envFilePath: ['.env'],
     }),
     PrismaModule,
     JwtSubModule,
@@ -25,13 +23,13 @@ import { JwtAuthGuard } from 'src/global/guards/jwt.auth.guard';
     AuthModule,
     AdminModule,
   ],
-  controllers : [FileStreamerController],
-  providers : [
+  controllers: [FileStreamerController],
+  providers: [
     FileStreamService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
-    }
-  ]
+    },
+  ],
 })
-export class CoreModule { }
+export class CoreModule {}

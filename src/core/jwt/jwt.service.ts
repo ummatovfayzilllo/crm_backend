@@ -17,10 +17,10 @@ export class JwtSubService {
     private readonly configService: ConfigService,
   ) {}
 
-  async getAccessToken(userId: string) {
+  async getAccessToken(userId: string, role?: string) {
     const token = await getToken(
       this.jwtService,
-      { userId, email: "" },
+      { userId, email: '', role },
       this.configService,
     );
     return token;
@@ -31,7 +31,7 @@ export class JwtSubService {
       this.jwtService,
       { userId, email },
       this.configService,
-      jwtTokenTypeEnum.SESSION
+      jwtTokenTypeEnum.SESSION,
     );
     return token;
   }
@@ -39,7 +39,7 @@ export class JwtSubService {
   async getRefreshToken(userId: string) {
     const token = await getToken(
       this.jwtService,
-      { userId, email: "" },
+      { userId, email: '' },
       this.configService,
       jwtTokenTypeEnum.REFRESH,
     );

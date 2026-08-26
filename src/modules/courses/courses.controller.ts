@@ -1,7 +1,17 @@
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/global/guards/jwt.auth.guard';
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
@@ -13,37 +23,44 @@ import { fileStorages } from 'src/common/config/multer.config';
 @UseGuards(JwtAuthGuard)
 @Controller('courses')
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) { }
+  constructor(private readonly coursesService: CoursesService) {}
 
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        name: { type: "string", example: "Backend" },
-        price: { type: "number", example: 150000 },
-        durationMont: { type: "number", example: 4},
-        weekDays: { type: "number", example: [1, 3, 5] },
-        durationMinut: { type: "number", example: 90},
-        published : {type : "boolean" ,example : false},
+        name: { type: 'string', example: 'Backend' },
+        price: { type: 'number', example: 150000 },
+        durationMont: { type: 'number', example: 4 },
+        weekDays: { type: 'number', example: [1, 3, 5] },
+        durationMinut: { type: 'number', example: 90 },
+        published: { type: 'boolean', example: false },
         image: {
-          type: "string",
-          format: "binary"
-        }
+          type: 'string',
+          format: 'binary',
+        },
       },
-      required: ["name", "price", "durationMont", "weekDays", "durationMinut", "image"]
+      required: [
+        'name',
+        'price',
+        'durationMont',
+        'weekDays',
+        'durationMinut',
+        'image',
+      ],
     },
   })
-  @ApiConsumes("multipart/form-data")
-  @UseInterceptors(FileInterceptor("image", fileStorages(["image"])))
-  @Post("create")
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('image', fileStorages(['image'])))
+  @Post('create')
   create(
     @Body() dto: CreateCourseDto,
-    @UploadedFile() image? : Express.Multer.File
+    @UploadedFile() image?: Express.Multer.File,
   ) {
-    return this.coursesService.create(dto,image);
+    return this.coursesService.create(dto, image);
   }
 
-  @Get("get-all")
+  @Get('get-all')
   findAll() {
     return this.coursesService.findAll();
   }
@@ -56,24 +73,28 @@ export class CoursesController {
     schema: {
       type: 'object',
       properties: {
-        name: { type: "string", example: "Backend" },
-        price: { type: "number", example: 150000 },
-        durationMont: { type: "number", example: 4},
-        weekDays: { type: "number", example: [1, 3, 5] },
-        durationMinut: { type: "number", example: 90},
-        published : {type : "boolean" ,example : false},
+        name: { type: 'string', example: 'Backend' },
+        price: { type: 'number', example: 150000 },
+        durationMont: { type: 'number', example: 4 },
+        weekDays: { type: 'number', example: [1, 3, 5] },
+        durationMinut: { type: 'number', example: 90 },
+        published: { type: 'boolean', example: false },
         image: {
-          type: "string",
-          format: "binary"
-        }
+          type: 'string',
+          format: 'binary',
+        },
       },
     },
   })
-  @ApiConsumes("multipart/form-data")
-  @UseInterceptors(FileInterceptor("image", fileStorages(["image"])))
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('image', fileStorages(['image'])))
   @Patch('update-one/:id')
-  update(@Param('id') id: string, @Body() dto: UpdateCourseDto,@UploadedFile() image? : Express.Multer.File) {
-    return this.coursesService.update(id, dto,image);
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateCourseDto,
+    @UploadedFile() image?: Express.Multer.File,
+  ) {
+    return this.coursesService.update(id, dto, image);
   }
 
   @Delete('delete-one/:id')

@@ -1,7 +1,16 @@
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/global/guards/jwt.auth.guard';
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+} from '@nestjs/common';
 import { GroupesService } from './groupes.service';
 import { CreateGroupeDto } from './dto/create-groupe.dto';
 import { UpdateGroupeDto } from './dto/update-groupe.dto';
@@ -12,12 +21,12 @@ import { UpdateGroupeDto } from './dto/update-groupe.dto';
 export class GroupesController {
   constructor(private readonly groupesService: GroupesService) {}
 
-  @Post("create")
+  @Post('create')
   create(@Body() createGroupeDto: CreateGroupeDto) {
     return this.groupesService.create(createGroupeDto);
   }
 
-  @Get("get-all")
+  @Get('get-all')
   findAll() {
     return this.groupesService.findAll();
   }
@@ -27,14 +36,14 @@ export class GroupesController {
     return this.groupesService.findOne(id);
   }
 
-  @Get("get-all/by-roomid/:id")
-  getAllByRoomId(@Param("id") id : string){
-    return this.groupesService.getAllByRoomId(id)
+  @Get('get-all/by-roomid/:id')
+  getAllByRoomId(@Param('id') id: string) {
+    return this.groupesService.getAllByRoomId(id);
   }
 
-  @Get("get-one/by-courseid/:id")
-  getOne_ByourseId(@Param("id") id : string){
-    return this.groupesService.findOneByCourseId(id)
+  @Get('get-one/by-courseid/:id')
+  getOne_ByourseId(@Param('id') id: string) {
+    return this.groupesService.findOneByCourseId(id);
   }
 
   @Patch('update-one/:id')

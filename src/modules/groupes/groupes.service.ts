@@ -12,7 +12,10 @@ import { CreateGroupeDto } from './dto/create-groupe.dto';
 import { UpdateGroupeDto } from './dto/update-groupe.dto';
 import { PrismaService } from 'src/core/prisma/prisma.service';
 
-import { checAlreadykExistsResurs, checkExistsResurs } from 'src/common/utils/check.functions';
+import {
+  checAlreadykExistsResurs,
+  checkExistsResurs,
+} from 'src/common/utils/check.functions';
 import { ModelsEnumInPrisma } from 'src/common/types/global.types';
 import { Course, Rom } from '@prisma/client';
 import { UserFindEntitiy } from '../users/entities/user.entity';
@@ -22,7 +25,7 @@ export class GroupesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-  ) { }
+  ) {}
 
   /**
    * CREATE GROUP
@@ -36,7 +39,9 @@ export class GroupesService {
       include: { user: { select: UserFindEntitiy } },
     });
     if (!teacher)
-      throw new BadRequestException(`Staff [${teacherId}] not found or deleted`);
+      throw new BadRequestException(
+        `Staff [${teacherId}] not found or deleted`,
+      );
     if (teacher.user.isDeleted)
       throw new BadRequestException(`User [${teacher.user.id}] is deleted`);
     if (teacher.role !== 'TEACHER')
@@ -80,7 +85,9 @@ export class GroupesService {
         teacher: { include: { user: true } },
         course: true,
         rom: true,
-        _count: { select: { students: true, Lesson: true, GroupPayment: true } },
+        _count: {
+          select: { students: true, Lesson: true, GroupPayment: true },
+        },
       },
     });
 
@@ -101,13 +108,15 @@ export class GroupesService {
         teacher: { include: { user: true } },
         course: true,
         rom: true,
-        _count: { select: { students: true, Lesson: true, GroupPayment: true } },
+        _count: {
+          select: { students: true, Lesson: true, GroupPayment: true },
+        },
       },
     });
 
     return {
       count: groupes.length,
-      groupes: groupes.map(g => flattenGroup(this.config, <any>g)),
+      groupes: groupes.map((g) => flattenGroup(this.config, <any>g)),
     };
   }
 
@@ -119,13 +128,15 @@ export class GroupesService {
         teacher: { include: { user: true } },
         course: true,
         rom: true,
-        _count: { select: { students: true, Lesson: true, GroupPayment: true } },
-        Lesson : true
+        _count: {
+          select: { students: true, Lesson: true, GroupPayment: true },
+        },
+        Lesson: true,
       },
     });
     return {
       count: res.length,
-      groupes: res.map(g => flattenGroup(this.config, <any>g)),
+      groupes: res.map((g) => flattenGroup(this.config, <any>g)),
     };
   }
 
@@ -139,11 +150,14 @@ export class GroupesService {
         teacher: { include: { user: true } },
         course: true,
         rom: true,
-        _count: { select: { students: true, Lesson: true, GroupPayment: true } },
+        _count: {
+          select: { students: true, Lesson: true, GroupPayment: true },
+        },
       },
     });
 
-    if (!group) throw new NotFoundException(`Group [${id}] not found or deleted`);
+    if (!group)
+      throw new NotFoundException(`Group [${id}] not found or deleted`);
 
     return {
       group: flattenGroup(this.config, <any>group),
@@ -156,11 +170,14 @@ export class GroupesService {
         teacher: { include: { user: true } },
         course: true,
         rom: true,
-        _count: { select: { students: true, Lesson: true, GroupPayment: true } },
+        _count: {
+          select: { students: true, Lesson: true, GroupPayment: true },
+        },
       },
     });
 
-    if (!group) throw new NotFoundException(`Group [${id}] not found or deleted`);
+    if (!group)
+      throw new NotFoundException(`Group [${id}] not found or deleted`);
 
     return {
       group: flattenGroup(this.config, <any>group),
@@ -176,7 +193,8 @@ export class GroupesService {
     if (!group)
       throw new NotFoundException(`Group [${id}] not found or deleted`);
 
-    if (dto.startDate) {}
+    if (dto.startDate) {
+    }
 
     const updated = await this.prisma.group.update({
       where: { id },
@@ -185,7 +203,9 @@ export class GroupesService {
         teacher: { include: { user: true } },
         course: true,
         rom: true,
-        _count: { select: { students: true, Lesson: true, GroupPayment: true } },
+        _count: {
+          select: { students: true, Lesson: true, GroupPayment: true },
+        },
       },
     });
 
@@ -202,11 +222,14 @@ export class GroupesService {
     const group = await this.prisma.group.findFirst({
       where: { id, isDeleted: false },
       include: {
-        _count: { select: { students: true, Lesson: true, GroupPayment: true } },
+        _count: {
+          select: { students: true, Lesson: true, GroupPayment: true },
+        },
       },
     });
 
-    if (!group) throw new NotFoundException(`Group [${id}] not found or deleted`);
+    if (!group)
+      throw new NotFoundException(`Group [${id}] not found or deleted`);
 
     const hasRelations =
       group._count.students > 0 ||

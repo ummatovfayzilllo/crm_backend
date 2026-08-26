@@ -6,26 +6,39 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { CreateAttendentionalDto,AttendanceDto } from './dto/create-attendentional.dto';
+import {
+  CreateAttendentionalDto,
+  AttendanceDto,
+} from './dto/create-attendentional.dto';
 import { UpdateAttendentionalDto } from './dto/update-attendentional.dto';
 import { PrismaService } from 'src/core/prisma/prisma.service';
 
 @Injectable()
 export class AttendentionalsService {
-  constructor(private readonly prisma: PrismaService, private readonly config: ConfigService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {}
 
   async create(data: CreateAttendentionalDto) {
     const { lessonId, attendances } = data;
 
-    if (!attendances || !Array.isArray(attendances) || attendances.length === 0) {
-      throw new BadRequestException('attendances array must be provided and non-empty.');
+    if (
+      !attendances ||
+      !Array.isArray(attendances) ||
+      attendances.length === 0
+    ) {
+      throw new BadRequestException(
+        'attendances array must be provided and non-empty.',
+      );
     }
 
     // 1. Dars borligini tekshir
     const lesson = await this.prisma.lesson.findUnique({
       where: { id: lessonId },
     });
-    if (!lesson) throw new NotFoundException(`Lesson not found by id [#${lessonId}]`);
+    if (!lesson)
+      throw new NotFoundException(`Lesson not found by id [#${lessonId}]`);
 
     // 2. Student ID larni ajratib olamiz
     const studentIds = attendances.map((a) => a.studentId);
@@ -41,7 +54,9 @@ export class AttendentionalsService {
     });
 
     const existingIds = new Set(existingRecords.map((r) => r.studentId));
-    const newAttendances = attendances.filter((a) => !existingIds.has(a.studentId));
+    const newAttendances = attendances.filter(
+      (a) => !existingIds.has(a.studentId),
+    );
 
     if (newAttendances.length > 0) {
       // 4. createMany uchun tayyorlash
@@ -129,7 +144,9 @@ export class AttendentionalsService {
         },
       });
       if (conflict && conflict.id !== id)
-        throw new ConflictException(`This student already has attendance for this lesson.`);
+        throw new ConflictException(
+          `This student already has attendance for this lesson.`,
+        );
     }
 
     const updated = await this.prisma.attendentional.update({
@@ -138,7 +155,9 @@ export class AttendentionalsService {
         lessonId: data.lessonId ?? exist.lessonId,
         studentId: data.studentId ?? exist.studentId,
         kelgan: data.kelgan ?? exist.kelgan,
-        kelganVaqti: data.kelganVaqti ? new Date(data.kelganVaqti) : exist.kelganVaqti,
+        kelganVaqti: data.kelganVaqti
+          ? new Date(data.kelganVaqti)
+          : exist.kelganVaqti,
         isDeleted: data.isDeleted ?? exist.isDeleted,
       },
       include: { lesson: true, student: { include: { user: true } } },
@@ -156,7 +175,8 @@ export class AttendentionalsService {
       where: { id: lessonId, isDeleted: false },
     });
 
-    if (!lesson) throw new NotFoundException(`Lesson not found by id [#${lessonId}]`);
+    if (!lesson)
+      throw new NotFoundException(`Lesson not found by id [#${lessonId}]`);
 
     const records = await this.prisma.attendentional.findMany({
       where: { lessonId, isDeleted: false },
@@ -181,13 +201,18 @@ export class AttendentionalsService {
       include: { Lesson: true },
     });
 
-    if (!group) throw new NotFoundException(`Group not found by id [#${groupId}]`);
+    if (!group)
+      throw new NotFoundException(`Group not found by id [#${groupId}]`);
 
     // barcha lesson ID larni olish
     const lessonIds = group.Lesson.map((l) => l.id);
 
     if (lessonIds.length === 0)
-      return { message: 'No lessons found for this group', count: 0, attendentionals: [] };
+      return {
+        message: 'No lessons found for this group',
+        count: 0,
+        attendentionals: [],
+      };
 
     const records = await this.prisma.attendentional.findMany({
       where: { lessonId: { in: lessonIds }, isDeleted: false },

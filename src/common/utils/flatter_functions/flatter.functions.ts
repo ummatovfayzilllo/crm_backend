@@ -7,7 +7,10 @@ import { AttendentionalFullEntity } from '../../../modules/attendentionals/entit
 import { ConfigService } from '@nestjs/config';
 import { urlGenerator } from '../generators';
 
-export function flattenAuthUser(config: ConfigService, user: UserFullEntity | AuthInputEntity) {
+export function flattenAuthUser(
+  config: ConfigService,
+  user: UserFullEntity | AuthInputEntity,
+) {
   if (!user) return null;
   const staff = user.Staff?.[0];
   return {
@@ -20,7 +23,10 @@ export function flattenAuthUser(config: ConfigService, user: UserFullEntity | Au
   };
 }
 
-export function flattenUser(config: ConfigService, user: UserFullEntity | AuthInputEntity) {
+export function flattenUser(
+  config: ConfigService,
+  user: UserFullEntity | AuthInputEntity,
+) {
   if (!user) return null;
   return {
     id: user.id,
@@ -32,12 +38,13 @@ export function flattenUser(config: ConfigService, user: UserFullEntity | AuthIn
     birthDay: user.birthDay,
     isDeleted: user.isDeleted,
     createdAt: user.createdAt,
-    roles: user.Staff && user.Staff.length > 0
-      ? user.Staff.map(staff => ({
-          id: staff.id,
-          role: staff.role
-        }))
-      : null,
+    roles:
+      user.Staff && user.Staff.length > 0
+        ? user.Staff.map((staff) => ({
+            id: staff.id,
+            role: staff.role,
+          }))
+        : null,
   };
 }
 
@@ -61,17 +68,25 @@ export function flattenStudent(config: ConfigService, staff: StaffFullEntity) {
   return s?.role === 'STUDENT' && !s.isDeleted && !s.user?.isDeleted ? s : null;
 }
 
-export function flattenRecord(config: ConfigService, record: AttendentionalFullEntity) {
+export function flattenRecord(
+  config: ConfigService,
+  record: AttendentionalFullEntity,
+) {
   if (!record) return null;
   const student = record.student ?? null;
   const user = student?.user ?? null;
 
-  const studentFirstName = (<any>user).firstName ?? (<any>student).firstName ?? null;
-  const studentLastName = (<any>user).lastName ?? (<any>student).lastName ?? null;
+  const studentFirstName =
+    (<any>user).firstName ?? (<any>student).firstName ?? null;
+  const studentLastName =
+    (<any>user).lastName ?? (<any>student).lastName ?? null;
   const studentFullName =
     studentFirstName && studentLastName
       ? `${studentFirstName} ${studentLastName}`
-      : studentFirstName ?? studentLastName ?? (<any>record).studentName ?? null;
+      : (studentFirstName ??
+        studentLastName ??
+        (<any>record).studentName ??
+        null);
 
   return {
     id: record.id,
@@ -104,7 +119,9 @@ export function flattenGroup(config: ConfigService, group: GroupFullEntity) {
     teacherFirstName: (<any>group.teacher?.user)?.firstName,
     teacherLastName: (<any>group.teacher?.user)?.lastName,
     teacherPhone: (<any>group.teacher?.user)?.phone,
-    teacherImage: group.teacher?.user?.image ? urlGenerator(config, group.teacher.user.image) : null,
+    teacherImage: group.teacher?.user?.image
+      ? urlGenerator(config, group.teacher.user.image)
+      : null,
 
     courseId: group.courseId,
     courseName: group.course?.name,
@@ -138,7 +155,9 @@ export function flattenLesson(config: ConfigService, lesson: LessonFullEntity) {
     teacherId: lesson.teacherId,
     teacherName:
       `${(<any>lesson.teacher?.user)?.firstName || ''} ${(<any>lesson.teacher?.user)?.lastName || ''}`.trim(),
-    teacherImage: lesson.teacher?.user?.image ? urlGenerator(config, lesson.teacher.user.image) : null,
+    teacherImage: lesson.teacher?.user?.image
+      ? urlGenerator(config, lesson.teacher.user.image)
+      : null,
 
     studentsCount: lesson.group?.students?.length || 0,
     attendCount: lesson.Attendentionals?.length || 0,

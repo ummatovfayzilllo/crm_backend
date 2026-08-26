@@ -1,6 +1,4 @@
-
-
 export const MODEL_NAME = 'modelname';
 export const IS_PUBLIC_KEY = 'isPublic';
 export const ROLE_NAME = 'roles';
-export type Models = "users"
+export type Models = 'users';

@@ -1,3 +1,1 @@
-export class UpdatePermissionDto{
-    
-}
+export class UpdatePermissionDto {}
